@@ -1,9 +1,15 @@
 package loader;
 
+import entities.Entity;
 import entities.EntityManager;
+import models.ModelType;
 import models.RawModel;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 import scene.Scene;
+import terrains.Terrain;
+import utils.Maths;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,14 +18,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class ModelLoader {
 
+
+
     private static ModelLoader modelLoader = new ModelLoader();
 
-    private HashMap<String, RawModel> models = new HashMap<>();
+    private HashMap<ModelType, HashMap<String, RawModel>> models = new HashMap<>();
 
     private ModelLoader() {}
 
@@ -37,13 +46,18 @@ public class ModelLoader {
             List<String> lines = Files.readAllLines(path);
 
             for (String line : lines) {
-                if (!line.startsWith("e ")) {
+                ModelType type;
+                if (line.startsWith("e ")) {
+                    type = ModelType.ENTITY;
+                } else if (line.startsWith("t ")) {
+                    type = ModelType.TERRAIN;
+                } else {
                     continue;
                 }
 
                 String[] splitLine = line.split(" ");
 
-                RawModel model = ModelLoader.getModelLoader().loadObject(splitLine[1]);
+                RawModel model = this.loadObject(splitLine[1], type);
 
                 String[] location = splitLine[2].split("/");
                 Vector3f entityLocation = new Vector3f(Float.parseFloat(location[0]), Float.parseFloat(location[1]), Float.parseFloat(location[2]));
@@ -54,7 +68,17 @@ public class ModelLoader {
                 float rotZ = Float.parseFloat(rotation[2]);
                 float scale = Float.parseFloat(splitLine[4]);
 
-                scene.addEntity(EntityManager.getManager().create(model, entityLocation, rotX, rotY, rotZ, scale));
+                Entity entity = EntityManager.getManager().create(model, entityLocation, rotX, rotY, rotZ, scale);
+
+                switch (type) {
+                    case ENTITY:
+                        scene.addEntity(entity);
+                        break;
+                    case TERRAIN:
+                        scene.addTerrain(new Terrain(entity, this.heights, this.size, this.sizeOffset));
+                        break;
+                }
+
             }
         } catch (IOException e) {
             System.out.println("Something went wrong with reading saves");
@@ -63,56 +87,26 @@ public class ModelLoader {
         return scene;
     }
 
-    public RawModel loadObject(String name) throws IOException {
-        if (models.containsKey(name)) {
-            return models.get(name);
+    private float[][] heights;
+    private Vector2f size;
+    private Vector2f sizeOffset;
+
+    private RawModel loadObject(String name, ModelType type) throws IOException {
+        if (!models.containsKey(type)) {
+            models.put(type, new HashMap<String, RawModel>());
+        }
+        if (models.get(type).containsKey(name)) {
+            return models.get(type).get(name);
         }
 
         Path filePath = Paths.get(System.getProperty("user.dir") + "\\res\\save\\" + name + "\\" + name + ".obj");
         if (!Files.exists(filePath)) {
             throw new IOException("Expected object path doesn't exists: " + filePath.toString());
         }
-        return loadObjectFile(filePath);
+        return loadObjectFile(filePath, type);
     }
 
-    private Vector3f parseLine(String first, String second, String third) {
-        return new Vector3f(Float.parseFloat(first), Float.parseFloat(second), Float.parseFloat(third));
-    }
-
-    private Triangle parseFace(String[] currentLine, Material currentMaterial, ArrayList<Integer> materialIndices, IntHolder indicesCount, IntHolder distinctVertexCounter) {
-        // Create a new triangle with a certain material.
-        Triangle triangle = new Triangle(currentMaterial);
-
-        // The length of the current line is expected to be 4
-        // (index 0 is the 'f ' part and the others the vertices of the triangle/face
-        for (int i = 1; i < currentLine.length; i++) {
-            indicesCount.increment(); // increment the indices amount
-            int currentIndex = Integer.parseInt(currentLine[i].split("/")[0]);
-            int currentNormal = Integer.parseInt(currentLine[i].split("/")[2]);
-            switch (i) {
-                case 1:
-                    triangle.vertex1 = currentIndex;
-                    triangle.normal1 = currentNormal;
-                    break;
-                case 2:
-                    triangle.vertex2 = currentIndex;
-                    triangle.normal2 = currentNormal;
-                    break;
-                case 3:
-                    triangle.vertex3 = currentIndex;
-                    triangle.normal3 = currentNormal;
-                    break;
-            }
-            if (!materialIndices.contains(currentIndex)) {
-                materialIndices.add(currentIndex);
-                distinctVertexCounter.increment();
-            }
-        }
-
-        return triangle;
-    }
-
-    private RawModel loadObjectFile(Path filePath) throws IOException {
+    private RawModel loadObjectFile(Path filePath, ModelType type) throws IOException {
         if (!checkFilePath(filePath)) {
             throw new IOException("Could not find path");
         }
@@ -123,7 +117,11 @@ public class ModelLoader {
         HashMap<String, Material> materialHashMap = new HashMap<>();
         // Faces are separated by a material so for every material there is a
         HashMap<Material, ArrayList<Integer>> positionIndices = new HashMap<>();
+
+        // A list of every vertex.
         List<Vector3f> vertices = new ArrayList<>();
+
+        // A list of all vertex normals.
         List<Vector3f> normalVectors = new ArrayList<>();
 
 
@@ -134,13 +132,30 @@ public class ModelLoader {
         BufferedReader reader = Files.newBufferedReader(filePath, Charset.defaultCharset());
         String name = filePath.getFileName().toString().split("\\.obj")[0];
 
+        Vector2f highestSize = new Vector2f(0, 0);
+        Vector2f lowestSize = new Vector2f(0, 0);
+
         // loop through each line of the file and check what it is.
         while ((line = reader.readLine()) != null) {
             String[] currentLine = line.split(" ");
             if (line.startsWith("mtllib ")) {
                 this.materialFileReader(Paths.get(originDirectory + currentLine[1]), materialHashMap);
             } else if (line.startsWith("v ")) {
-                vertices.add(parseLine(currentLine[1], currentLine[2], currentLine[3]));
+                Vector3f vertex = parseLine(currentLine[1], currentLine[2], currentLine[3]);
+                if (vertex.x > highestSize.x) {
+                    highestSize.x = vertex.x;
+                }
+                if (vertex.z > highestSize.y) {
+                    highestSize.y = vertex.z;
+                }
+                if (vertex.x < lowestSize.x) {
+                    lowestSize.x = vertex.x;
+                }
+                if (vertex.z < lowestSize.y) {
+                    lowestSize.y = vertex.z;
+                }
+
+                vertices.add(vertex);
             } else if (line.startsWith("vn ")) {
                 normalVectors.add(parseLine(currentLine[1], currentLine[2], currentLine[3]));
             } else if (line.startsWith("usemtl ") || line.startsWith("f ")) {
@@ -195,6 +210,20 @@ public class ModelLoader {
 
         // Array of all indices with the length of all vertices of each face.
         int[] indices = new int[indicesCount.getValue()];
+
+        // The x size.
+        int xSize = (int) (Math.ceil(highestSize.x) - Math.floor(lowestSize.x));
+        // This is the zSize and not y because in 3D it is the z axis.
+        int zSize = (int) (Math.ceil(highestSize.y) - Math.floor(lowestSize.y));
+        Vector2f size = new Vector2f(xSize, zSize);
+
+        Vector2f sizeOffset = new Vector2f((float) -Math.floor(lowestSize.x), (float) -Math.floor(lowestSize.y));
+
+        System.out.println(size);
+        System.out.println(sizeOffset);
+
+
+        float[][] heights = new float[(int) size.x + 1][(int) size.y + 1];
 
 
         // A map with per material a list of all vertices with their corresponding index to that vertex-color combo.
@@ -258,6 +287,9 @@ public class ModelLoader {
             // Third vertex of the triangle.
             indices[trianglePointer * 3 + 2] = vertexPositionId3;
 
+            heights = addHeight(heights, size, sizeOffset, triangle, vertices);
+
+
             //*********************************************************************************************************/
             // Get the normal of the first vertex and set the x, y, z coords.
             normals[vertexPositionId1 * 3] = normalVectors.get(triangle.normal1 - 1).x;
@@ -304,10 +336,6 @@ public class ModelLoader {
 //            normals[vertexPositionId3 * 3 + 2] = currentNormal.z;
             //*********************************************************************************************************/
 
-
-
-
-
             trianglePointer++;
         }
 
@@ -322,9 +350,84 @@ public class ModelLoader {
 
         GLLoader loader = GLLoader.getLoader();
         RawModel model = loader.loadToVao(positions, colors, normals, indices, name);
-        models.put(model.getName(), model);
+        model.setType(type);
+        models.get(type).put(model.getName(), model);
+        this.heights = heights;
+        this.size = size;
+        this.sizeOffset = sizeOffset;
+
         return model;
     }
+
+    /**
+     *
+     * @param heights the heights of the model
+     * @param size the size of the heights array
+     * @param triangle the current triangle that is being tested
+     */
+    private float[][] addHeight(float[][] heights, Vector2f size, Vector2f sizeOffset, Triangle triangle, List<Vector3f> vertices) {
+        Vector3f positionA = vertices.get(triangle.vertex1 - 1);
+        positionA = new Vector3f(positionA.x + sizeOffset.x, positionA.y, positionA.z + sizeOffset.y);
+        Vector2f positionABase = new Vector2f((float) Math.floor(positionA.x), (float) Math.floor(positionA.z));
+
+        Vector3f positionB = vertices.get(triangle.vertex2 - 1);
+        positionB = new Vector3f(positionB.x + sizeOffset.x, positionB.y, positionB.z + sizeOffset.y);
+        Vector2f positionBBase = new Vector2f((float) Math.floor(positionB.x), (float) Math.floor(positionB.z));
+
+        Vector3f positionC = vertices.get(triangle.vertex3 - 1);
+        positionC = new Vector3f(positionC.x + sizeOffset.x, positionC.y, positionC.z + sizeOffset.y);
+        Vector2f positionCBase = new Vector2f((float) Math.floor(positionC.x), (float) Math.floor(positionC.z));
+
+        Vector2f lowestBase = new Vector2f(positionABase.x, positionABase.y);
+        Vector2f highestBase = new Vector2f(positionABase.x, positionABase.y);
+
+        if (positionBBase.x < lowestBase.x) lowestBase.x = positionBBase.x;
+        if (positionBBase.y < lowestBase.y) lowestBase.y = positionBBase.y;
+
+        if (positionCBase.x < lowestBase.x) lowestBase.x = positionCBase.x;
+        if (positionCBase.y < lowestBase.y) lowestBase.y = positionCBase.y;
+
+        if (positionBBase.x > highestBase.x) highestBase.x = positionBBase.x;
+        if (positionBBase.y > highestBase.y) highestBase.y = positionBBase.y;
+
+        if (positionCBase.x > highestBase.x) highestBase.x = positionCBase.x;
+        if (positionCBase.y > highestBase.y) highestBase.y = positionCBase.y;
+
+        for (int x = (int) lowestBase.x; x <= highestBase.x; x++) {
+            for (int z = (int) lowestBase.y; z <= highestBase.y; z++) {
+                boolean isWithin = isWithinTriangle(
+                        new Vector2f(x, z),
+                        new Vector2f(positionA.x, positionA.z),
+                        new Vector2f(positionB.x, positionB.z),
+                        new Vector2f(positionC.x, positionC.z)
+                );
+
+                if (!isWithin) continue;
+
+                heights[x][z] = Maths.baryCentric(positionA, positionB, positionC, new Vector2f(x, z));
+            }
+        }
+        return heights;
+    }
+
+    private boolean isWithinTriangle(Vector2f position, Vector2f pointA, Vector2f pointB, Vector2f pointC) {
+        if (position.x == pointA.x && position.y == pointA.y) return true;
+        if (position.x == pointB.x && position.y == pointB.y) return true;
+        if (position.x == pointC.x && position.y == pointC.y) return true;
+
+        boolean b1, b2, b3;
+
+        b1 = sign(position, pointA, pointB) < 0.0f;
+        b2 = sign(position, pointB, pointC) < 0.0f;
+        b3 = sign(position, pointC, pointA) < 0.0f;
+
+        return ((b1 == b2) && (b2 == b3));
+    }
+
+    private float sign(Vector2f s, Vector2f pointA, Vector2f pointB) {
+        return (s.x - pointB.x) * (pointA.y - pointB.y) - (pointA.x - pointB.x) * (s.y - pointB.y);
+    }
+
 
     private boolean checkFilePath(Path filePath) {
         if (Files.isDirectory(filePath)) {
@@ -335,6 +438,43 @@ public class ModelLoader {
             return false;
         }
         return true;
+    }
+
+    private Vector3f parseLine(String first, String second, String third) {
+        return new Vector3f(Float.parseFloat(first), Float.parseFloat(second), Float.parseFloat(third));
+    }
+
+    private Triangle parseFace(String[] currentLine, Material currentMaterial, ArrayList<Integer> materialIndices, IntHolder indicesCount, IntHolder distinctVertexCounter) {
+        // Create a new triangle with a certain material.
+        Triangle triangle = new Triangle(currentMaterial);
+
+        // The length of the current line is expected to be 4
+        // (index 0 is the 'f ' part and the others the vertices of the triangle/face
+        for (int i = 1; i < currentLine.length; i++) {
+            indicesCount.increment(); // increment the indices amount
+            int currentIndex = Integer.parseInt(currentLine[i].split("/")[0]);
+            int currentNormal = Integer.parseInt(currentLine[i].split("/")[2]);
+            switch (i) {
+                case 1:
+                    triangle.vertex1 = currentIndex;
+                    triangle.normal1 = currentNormal;
+                    break;
+                case 2:
+                    triangle.vertex2 = currentIndex;
+                    triangle.normal2 = currentNormal;
+                    break;
+                case 3:
+                    triangle.vertex3 = currentIndex;
+                    triangle.normal3 = currentNormal;
+                    break;
+            }
+            if (!materialIndices.contains(currentIndex)) {
+                materialIndices.add(currentIndex);
+                distinctVertexCounter.increment();
+            }
+        }
+
+        return triangle;
     }
 
     private void materialFileReader(Path file, HashMap<String, Material> materialHashMap) {

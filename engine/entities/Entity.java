@@ -4,6 +4,7 @@ import models.RawModel;
 import org.lwjgl.util.vector.Vector3f;
 
 public class Entity {
+
     private final int id;
     private RawModel model;
     private Vector3f position;

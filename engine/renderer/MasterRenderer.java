@@ -10,7 +10,9 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import scene.Scene;
+import shaders.staticShader.StaticShader;
 import shadows.ShadowMapMasterRenderer;
+import utils.Maths;
 
 import java.util.List;
 
@@ -18,10 +20,15 @@ import java.util.List;
 public class MasterRenderer {
 
     private EntityRenderer entityRenderer;
+    private TerrainRenderer terrainRenderer;
     private ShadowMapMasterRenderer shadowMapMasterRenderer;
 
     public MasterRenderer(ShadowMapMasterRenderer shadowMapMasterRenderer) {
-        entityRenderer = new EntityRenderer();
+        StaticShader staticShader = initStaticShader();
+
+        entityRenderer = new EntityRenderer(staticShader);
+        terrainRenderer = new TerrainRenderer(staticShader);
+
         this.shadowMapMasterRenderer = shadowMapMasterRenderer;
     }
 
@@ -33,7 +40,8 @@ public class MasterRenderer {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, shadowMapMasterRenderer.getShadowMap());
 
 
-        entityRenderer.render(scene, camera, light, toShadowSpace);
+        entityRenderer.render(scene.getEntities(), camera, light, toShadowSpace);
+        terrainRenderer.render(scene.getTerrains(), camera, light, toShadowSpace);
     }
 
     public void renderShadowMap(List<Entity> entities, Vector3f lightDirection) {
@@ -42,5 +50,17 @@ public class MasterRenderer {
 
     public void cleanUp() {
         entityRenderer.cleanUp();
+    }
+
+    private StaticShader initStaticShader() {
+        StaticShader staticShader = new StaticShader();
+        Matrix4f projectionMatrix = Maths.createProjectionMatrix();
+
+        staticShader.start();
+        staticShader.loadProjectionMatrix(projectionMatrix);
+        staticShader.connectTextureUnits();
+        staticShader.stop();
+
+        return staticShader;
     }
 }

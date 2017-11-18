@@ -1,6 +1,8 @@
 package renderer;
 
 import entities.Camera;
+import entities.Entity;
+import entities.EntityManager;
 import entities.Light;
 import guis.GuiRenderer;
 import guis.GuiTexture;
@@ -15,6 +17,7 @@ import org.lwjgl.util.vector.Vector3f;
 import scene.Scene;
 import fbo.FBO;
 import shadows.ShadowMapMasterRenderer;
+import terrains.Terrain;
 import utils.DisplayManager;
 import utils.Maths;
 
@@ -45,7 +48,6 @@ public class Engine {
 
         camera = new Camera(new Vector3f(0, 20, 0));
 
-
         shadowMapRenderer = new ShadowMapMasterRenderer(camera);
         masterRenderer = new MasterRenderer(shadowMapRenderer);
         light = new Light(new Vector3f(-0.8f, -1f, 0f), new Vector3f(1f, 1f, 1f));
@@ -61,7 +63,7 @@ public class Engine {
     }
 
     public void update() {
-        camera.move();
+        camera.move(scene.getTerrains());
 
         fbo.bindFrameBuffer();
         masterRenderer.render(scene, camera, light, shadowMapRenderer.getToShadowMapSpaceMatrix());

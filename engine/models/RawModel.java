@@ -4,6 +4,7 @@ public class RawModel {
     private int vaoID;
     private int vertexCount;
     private String name;
+    private ModelType type;
 
     public RawModel(int vaoID, int vertexCount, String name) {
         this.vaoID = vaoID;
@@ -21,5 +22,9 @@ public class RawModel {
 
     public String getName() {
         return name;
+    }
+
+    public void setType(ModelType type) {
+        this.type = type;
     }
 }

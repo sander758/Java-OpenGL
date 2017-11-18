@@ -3,7 +3,10 @@ package entities;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
+import terrains.Terrain;
 import utils.DisplayManager;
+
+import java.util.List;
 
 public class Camera {
     private final float speed = 5f;
@@ -30,7 +33,7 @@ public class Camera {
         return yaw;
     }
 
-    public void move() {
+    public void move(List<Terrain> terrains) {
         // middle mouse button
         if (Mouse.isButtonDown(2)) {
             pitch += -Mouse.getDY() * mouseSensitivity;
@@ -69,11 +72,47 @@ public class Camera {
             position.x -= newZ * this.currentSpeed * time;
             position.z -= newX * this.currentSpeed * time;
         }
+
+        Terrain currentTerrain = null;
+
+        for (Terrain terrain : terrains) {
+            float highestX = terrain.getEntity().getPosition().x + terrain.getSize().x - terrain.getSizeOffset().x;
+            float highestZ = terrain.getEntity().getPosition().z + terrain.getSize().y - terrain.getSizeOffset().y;
+
+            float lowestX = terrain.getEntity().getPosition().x - terrain.getSize().x + terrain.getSizeOffset().x;
+            float lowestZ = terrain.getEntity().getPosition().z - terrain.getSize().y + terrain.getSizeOffset().y;
+
+            if (position.x >= lowestX && position.x <= highestX
+                    && position.z >= lowestZ && position.z <= highestZ) {
+                currentTerrain = terrain;
+                break;
+            }
+        }
+
+//        System.out.println("current terrain: " + (currentTerrain == null ? 0 : currentTerrain.getEntity().getId()) );
+
+        if (currentTerrain == null) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                position.y -= this.currentSpeed * time;
+            }
+            if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+                position.y += this.currentSpeed * time;
+            }
+            return;
+        }
+
+        float height = currentTerrain.getHeight(position.x, position.z);
+
+        float positionY = position.y;
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-            position.y -= this.currentSpeed * time;
+            positionY -= this.currentSpeed * time;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-            position.y += this.currentSpeed * time;
+            positionY += this.currentSpeed * time;
         }
+        if (positionY < height) {
+            positionY = height;
+        }
+        position.y = positionY;
     }
 }
