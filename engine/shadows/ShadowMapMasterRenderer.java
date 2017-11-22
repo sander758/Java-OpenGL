@@ -1,13 +1,16 @@
 package shadows;
 
-import entities.Camera;
-import entities.Entity;
+import java.util.List;
+import java.util.Map;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.List;
+import entities.Camera;
+import entities.Entity;
+import entities.Light;
 
 /**
  * This class is in charge of using all of the classes in the shadows package to
@@ -20,7 +23,7 @@ import java.util.List;
  */
 public class ShadowMapMasterRenderer {
 
-	private static final int SHADOW_MAP_SIZE = 2048;
+	private static final int SHADOW_MAP_SIZE = 4096;
 
 	private ShadowFrameBuffer shadowFbo;
 	private ShadowShader shader;
@@ -83,6 +86,10 @@ public class ShadowMapMasterRenderer {
 	public Matrix4f getToShadowMapSpaceMatrix() {
 		return Matrix4f.mul(offset, projectionViewMatrix, null);
 	}
+
+	public float getShadowDistance() {
+	    return shadowBox.getShadowDistance();
+    }
 
 	/**
 	 * Clean up the shader and FBO on closing.

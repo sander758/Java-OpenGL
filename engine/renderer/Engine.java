@@ -50,11 +50,11 @@ public class Engine {
 
         shadowMapRenderer = new ShadowMapMasterRenderer(camera);
         masterRenderer = new MasterRenderer(shadowMapRenderer);
-        light = new Light(new Vector3f(-0.8f, -1f, 0f), new Vector3f(1f, 1f, 1f));
+        light = new Light(new Vector3f(0.4f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f));
 
         guiRenderer = new GuiRenderer();
 
-        fbo = new FBO();
+//        fbo = new FBO();
 //        guiTextures.add(new GuiTexture(fbo.getColorTexture(), new Vector2f(0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
 
 //        guiTextures.add(new GuiTexture(shadowMapRenderer.getShadowMap(), new Vector2f(-0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
@@ -65,9 +65,9 @@ public class Engine {
     public void update() {
         camera.move(scene.getTerrains());
 
-        fbo.bindFrameBuffer();
-        masterRenderer.render(scene, camera, light, shadowMapRenderer.getToShadowMapSpaceMatrix());
-        fbo.unbindCurrentFrameBuffer();
+//        fbo.bindFrameBuffer();
+//        masterRenderer.render(scene, camera, light, shadowMapRenderer.getToShadowMapSpaceMatrix());
+//        fbo.unbindCurrentFrameBuffer();
 
 
         masterRenderer.renderShadowMap(scene.getEntities(), light.getDirection());

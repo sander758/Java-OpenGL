@@ -7,12 +7,14 @@ layout ( triangle_strip, max_vertices = 3) out;
 in vec3 passColor[];
 in vec3 surfaceNormal[];
 in vec3 toLightVector[];
+in vec4 passShadowCoords[];
 
 uniform vec3 lightDirection; // direction from the light to the surface
 uniform vec3 lightColor;
 
 out vec3 finalColor;
 out float passBrightness;
+out vec4 shadowCoords;
 
 void main() {
     vec3 resultColor = (passColor[0] + passColor[1] + passColor[2]) / 3;
@@ -30,16 +32,19 @@ void main() {
     gl_Position = gl_in[0].gl_Position;
     finalColor = resultColor;
     passBrightness = brightness;
+    shadowCoords = passShadowCoords[0];
     EmitVertex();
 
     gl_Position = gl_in[1].gl_Position;
     finalColor = resultColor;
     passBrightness = brightness;
+    shadowCoords = passShadowCoords[1];
     EmitVertex();
 
     gl_Position = gl_in[2].gl_Position;
     finalColor = resultColor;
     passBrightness = brightness;
+    shadowCoords = passShadowCoords[2];
     EmitVertex();
 
     EndPrimitive();

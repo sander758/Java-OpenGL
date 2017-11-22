@@ -1,6 +1,7 @@
 package shadows;
 
 import org.lwjgl.util.vector.Matrix4f;
+
 import shaders.ShaderProgram;
 
 public class ShadowShader extends ShaderProgram {
@@ -13,6 +14,10 @@ public class ShadowShader extends ShaderProgram {
 	protected ShadowShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
 	}
+	
+	protected void loadMvpMatrix(Matrix4f mvpMatrix){
+		super.loadMatrix(location_mvpMatrix, mvpMatrix);
+	}
 
 	@Override
 	protected void initializeUniformLocations() {
@@ -22,10 +27,6 @@ public class ShadowShader extends ShaderProgram {
 	@Override
 	protected void bindAttributes() {
 		super.bindAttribute(0, "in_position");
-	}
-
-	protected void loadMvpMatrix(Matrix4f mvpMatrix){
-		super.loadMatrix(location_mvpMatrix, mvpMatrix);
 	}
 
 }

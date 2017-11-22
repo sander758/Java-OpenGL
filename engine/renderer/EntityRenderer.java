@@ -19,15 +19,19 @@ public class EntityRenderer {
 
     private StaticShader staticShader;
 
-    public EntityRenderer(StaticShader staticShader) {
-        this.staticShader = staticShader;
+    public EntityRenderer() {
+        staticShader = new StaticShader();
+        Matrix4f projectionMatrix = Maths.createProjectionMatrix();
+
+        staticShader.start();
+        staticShader.loadProjectionMatrix(projectionMatrix);
+        staticShader.stop();
     }
 
-    public void render(List<Entity> entities, Camera camera, Light light, Matrix4f toShadowSpace) {
+    public void render(List<Entity> entities, Camera camera, Light light) {
         staticShader.start();
         staticShader.loadViewMatrix(camera);
         staticShader.loadLight(light);
-        staticShader.loadToShadowSpaceMatrix(toShadowSpace);
 
         for (Entity entity : entities) {
             GL30.glBindVertexArray(entity.getModel().getVaoID());

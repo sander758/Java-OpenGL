@@ -1,10 +1,11 @@
 package shadows;
 
-import entities.Camera;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import entities.Camera;
 import utils.Maths;
 
 /**
@@ -25,7 +26,7 @@ public class ShadowBox {
 	private static final float OFFSET = 10;
 	private static final Vector4f UP = new Vector4f(0, 1, 0, 0);
 	private static final Vector4f FORWARD = new Vector4f(0, 0, -1, 0);
-	private static final float SHADOW_DISTANCE = 100;
+	private static final float SHADOW_DISTANCE = 50;
 
 	private float minX, maxX;
 	private float minY, maxY;
@@ -52,6 +53,10 @@ public class ShadowBox {
 		this.lightViewMatrix = lightViewMatrix;
 		this.cam = camera;
 		calculateWidthsAndHeights();
+	}
+
+	public static float getShadowDistance() {
+		return SHADOW_DISTANCE;
 	}
 
 	/**

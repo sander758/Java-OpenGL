@@ -1,14 +1,16 @@
 package shadows;
 
-import entities.Entity;
-import models.RawModel;
+import java.util.List;
+import java.util.Map;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
-import utils.Maths;
 
-import java.util.List;
+import entities.Entity;
+import models.RawModel;
+import utils.Maths;
 
 public class ShadowMapEntityRenderer {
 
@@ -36,12 +38,12 @@ public class ShadowMapEntityRenderer {
 	 *            - the entities to be rendered to the shadow map.
 	 */
 	protected void render(List<Entity> entities) {
-
 		for (Entity entity : entities) {
-			GL30.glBindVertexArray(entity.getModel().getVaoID());
-			GL20.glEnableVertexAttribArray(0);
+			RawModel rawModel = entity.getModel();
+			bindModel(rawModel);
 			prepareInstance(entity);
-			GL11.glDrawElements(GL11.GL_TRIANGLES, entity.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(),
+					GL11.GL_UNSIGNED_INT, 0);
 		}
 
 		GL20.glDisableVertexAttribArray(0);

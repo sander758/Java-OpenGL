@@ -222,7 +222,7 @@ public class ModelLoader {
         System.out.println(size);
         System.out.println(sizeOffset);
 
-
+        // The heights of a rounded point of this model.
         float[][] heights = new float[(int) size.x + 1][(int) size.y + 1];
 
 
@@ -287,7 +287,8 @@ public class ModelLoader {
             // Third vertex of the triangle.
             indices[trianglePointer * 3 + 2] = vertexPositionId3;
 
-            heights = addHeight(heights, size, sizeOffset, triangle, vertices);
+            // Calculate the heights of whole points inside this triangle.
+            heights = addHeight(heights, sizeOffset, triangle, vertices);
 
 
             //*********************************************************************************************************/
@@ -360,14 +361,20 @@ public class ModelLoader {
     }
 
     /**
+     * Add the heights within a triangle to the heights array.
      *
-     * @param heights the heights of the model
-     * @param size the size of the heights array
+     * @param heights the heights of the model.
+     * @param sizeOffset the offset relative to size of the model.
      * @param triangle the current triangle that is being tested
+     * @param vertices all the vertices of the whole model.
+     * @return The array with the heights of all whole points.
      */
-    private float[][] addHeight(float[][] heights, Vector2f size, Vector2f sizeOffset, Triangle triangle, List<Vector3f> vertices) {
+    private float[][] addHeight(float[][] heights, Vector2f sizeOffset, Triangle triangle, List<Vector3f> vertices) {
         Vector3f positionA = vertices.get(triangle.vertex1 - 1);
+
+        // The position relative to the size of the model. (only positive numbers)
         positionA = new Vector3f(positionA.x + sizeOffset.x, positionA.y, positionA.z + sizeOffset.y);
+        // The base position. (Only rounded numbers)
         Vector2f positionABase = new Vector2f((float) Math.floor(positionA.x), (float) Math.floor(positionA.z));
 
         Vector3f positionB = vertices.get(triangle.vertex2 - 1);
@@ -381,6 +388,7 @@ public class ModelLoader {
         Vector2f lowestBase = new Vector2f(positionABase.x, positionABase.y);
         Vector2f highestBase = new Vector2f(positionABase.x, positionABase.y);
 
+        // Get the highest and lowest base.
         if (positionBBase.x < lowestBase.x) lowestBase.x = positionBBase.x;
         if (positionBBase.y < lowestBase.y) lowestBase.y = positionBBase.y;
 
@@ -393,6 +401,8 @@ public class ModelLoader {
         if (positionCBase.x > highestBase.x) highestBase.x = positionCBase.x;
         if (positionCBase.y > highestBase.y) highestBase.y = positionCBase.y;
 
+        // Loop through every point between the lowest and highest base and check if that point is within
+        // the current triangle. If so, calculate the height of the of the point and store it within the heights array.
         for (int x = (int) lowestBase.x; x <= highestBase.x; x++) {
             for (int z = (int) lowestBase.y; z <= highestBase.y; z++) {
                 boolean isWithin = isWithinTriangle(
@@ -410,6 +420,15 @@ public class ModelLoader {
         return heights;
     }
 
+    /**
+     * Checks if a point is within a triangle.
+     *
+     * @param position the point to check for.
+     * @param pointA point 1 of the triangle.
+     * @param pointB point 2 of the triangle.
+     * @param pointC point 3 of the triangle.
+     * @return if the @position is within the triangle return true. Otherwise it will return false.
+     */
     private boolean isWithinTriangle(Vector2f position, Vector2f pointA, Vector2f pointB, Vector2f pointC) {
         if (position.x == pointA.x && position.y == pointA.y) return true;
         if (position.x == pointB.x && position.y == pointB.y) return true;

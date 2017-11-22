@@ -1,4 +1,4 @@
-package shaders.staticShader;
+package shaders.terrainShader;
 
 import entities.Camera;
 import entities.Light;
@@ -6,19 +6,21 @@ import org.lwjgl.util.vector.Matrix4f;
 import shaders.ShaderProgram;
 import utils.Maths;
 
-public class StaticShader extends ShaderProgram {
-
-    private static final String VERTEX_FILE = "engine/shaders/staticShader/staticShaderVertex.glsl";
-    private static final String GEOMETRY_FILE = "engine/shaders/staticShader/staticShaderGeometry.glsl";
-    private static final String FRAGMENT_FILE = "engine/shaders/staticShader/staticShaderFragment.glsl";
+public class TerrainShader extends ShaderProgram {
+    private static final String VERTEX_FILE = "engine/shaders/terrainShader/terrainShaderVertex.glsl";
+    private static final String GEOMETRY_FILE = "engine/shaders/terrainShader/terrainShaderGeometry.glsl";
+    private static final String FRAGMENT_FILE = "engine/shaders/terrainShader/terrainShaderFragment.glsl";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;
     private int location_viewMatrix;
     private int location_lightDirection;
     private int location_lightColor;
+    private int location_toShadowMapSpace;
+    private int location_shadowMap;
+    private int location_shadowDistance;
 
-    public StaticShader() {
+    public TerrainShader() {
         super(VERTEX_FILE, GEOMETRY_FILE, FRAGMENT_FILE);
     }
 
@@ -29,6 +31,13 @@ public class StaticShader extends ShaderProgram {
         this.location_viewMatrix = super.getUniformLocation("viewMatrix");
         this.location_lightDirection = super.getUniformLocation("lightDirection");
         this.location_lightColor = super.getUniformLocation("lightColor");
+        this.location_toShadowMapSpace = super.getUniformLocation("toShadowMapSpace");
+        this.location_shadowMap = super.getUniformLocation("shadowMap");
+        this.location_shadowDistance = super.getUniformLocation("shadowDistance");
+    }
+
+    public void connectTextureUnits() {
+        super.loadInt(location_shadowMap, 0);
     }
 
     @Override
@@ -54,5 +63,13 @@ public class StaticShader extends ShaderProgram {
     public void loadLight(Light light) {
         super.loadVector(location_lightDirection, light.getDirection());
         super.loadVector(location_lightColor, light.getColor());
+    }
+
+    public void loadToShadowSpaceMatrix(Matrix4f matrix) {
+        super.loadMatrix(location_toShadowMapSpace, matrix);
+    }
+
+    public void loadShadowDistance(float shadowDistance) {
+        super.loadFloat(location_shadowDistance, shadowDistance);
     }
 }
