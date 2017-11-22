@@ -12,7 +12,7 @@ uniform sampler2D shadowMap;
 uniform float mapSize;
 
 // percentage closer filtering
-const int pcfCount = 3;
+const int pcfCount = 2;
 const float totalTexels = (pcfCount * 2.0 + 1.0) * (pcfCount * 2.0 + 1.0);
 
 void main(void) {
