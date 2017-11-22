@@ -16,7 +16,7 @@ public class TerrainRenderer {
 
     private TerrainShader terrainShader;
 
-    public TerrainRenderer(float shadowDistance) {
+    public TerrainRenderer(float shadowDistance, float shadowMapSize) {
         terrainShader = new TerrainShader();
 
         Matrix4f projectionMatrix = Maths.createProjectionMatrix();
@@ -24,6 +24,7 @@ public class TerrainRenderer {
         terrainShader.start();
         terrainShader.loadProjectionMatrix(projectionMatrix);
         terrainShader.loadShadowDistance(shadowDistance);
+        terrainShader.loadShadowMapSize(shadowMapSize);
         terrainShader.connectTextureUnits();
         terrainShader.stop();
     }

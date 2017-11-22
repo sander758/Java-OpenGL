@@ -21,7 +21,7 @@ public class MasterRenderer {
 
     public MasterRenderer(ShadowMapMasterRenderer shadowMapMasterRenderer) {
         entityRenderer = new EntityRenderer();
-        terrainRenderer = new TerrainRenderer(shadowMapMasterRenderer.getShadowDistance());
+        terrainRenderer = new TerrainRenderer(shadowMapMasterRenderer.getShadowDistance(), shadowMapMasterRenderer.getShadowMapSize());
 
         this.shadowMapMasterRenderer = shadowMapMasterRenderer;
     }

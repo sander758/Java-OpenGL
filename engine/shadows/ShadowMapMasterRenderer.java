@@ -23,7 +23,7 @@ import entities.Light;
  */
 public class ShadowMapMasterRenderer {
 
-	private static final int SHADOW_MAP_SIZE = 4096;
+	private static final int SHADOW_MAP_SIZE = 6144;
 
 	private ShadowFrameBuffer shadowFbo;
 	private ShadowShader shader;
@@ -52,6 +52,10 @@ public class ShadowMapMasterRenderer {
 		shadowFbo = new ShadowFrameBuffer(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 		entityRenderer = new ShadowMapEntityRenderer(shader, projectionViewMatrix);
 	}
+
+	public float getShadowMapSize() {
+	    return SHADOW_MAP_SIZE;
+    }
 
 	/**
 	 * Carries out the shadow render pass. This renders the entities to the
