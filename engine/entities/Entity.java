@@ -6,18 +6,17 @@ import org.lwjgl.util.vector.Vector3f;
 public class Entity {
 
     private final int id;
+
     private RawModel model;
     private Vector3f position;
-    private float rotX, rotY, rotZ;
+    private Vector3f rotation;
     private float scale;
 
-    public Entity(int id, RawModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
+    public Entity(int id, RawModel model, Vector3f position, Vector3f rotation, float scale) {
         this.id = id;
         this.model = model;
         this.position = position;
-        this.rotX = rotX;
-        this.rotY = rotY;
-        this.rotZ = rotZ;
+        this.rotation = rotation;
         this.scale = scale;
     }
 
@@ -33,16 +32,8 @@ public class Entity {
         return position;
     }
 
-    public float getRotX() {
-        return rotX;
-    }
-
-    public float getRotY() {
-        return rotY;
-    }
-
-    public float getRotZ() {
-        return rotZ;
+    public Vector3f getRotation() {
+        return rotation;
     }
 
     public float getScale() {
@@ -62,15 +53,13 @@ public class Entity {
     }
 
     public void increaseRotation(float dx, float dy, float dz) {
-        rotX += dx;
-        rotY += dy;
-        rotZ += dz;
+        rotation.x += dx;
+        rotation.y += dy;
+        rotation.z += dz;
     }
 
-    public void setRotation(float dx, float dy, float dz) {
-        rotX = dx;
-        rotY = dy;
-        rotZ = dz;
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
     }
 
     public void setScale(float scale) {

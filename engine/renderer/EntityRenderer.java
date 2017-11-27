@@ -1,16 +1,13 @@
 package renderer;
 
-import entities.Camera;
+import scene.Camera;
 import entities.Entity;
-import entities.Light;
+import scene.Light;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
-import scene.Scene;
 import shaders.staticShader.StaticShader;
-import terrains.Terrain;
 import utils.Maths;
 
 import java.util.List;
@@ -39,7 +36,8 @@ public class EntityRenderer {
             GL20.glEnableVertexAttribArray(1);
             GL20.glEnableVertexAttribArray(2);
 
-            Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
+//            entity.increaseRotation(0, 3, 0);
+            Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotation().x, entity.getRotation().y, entity.getRotation().z, entity.getScale());
             staticShader.loadTransformationMatrix(transformationMatrix);
 
             GL11.glDrawElements(GL11.GL_TRIANGLES, entity.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);

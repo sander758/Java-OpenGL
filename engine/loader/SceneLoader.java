@@ -4,11 +4,12 @@ import entities.Entity;
 import entities.EntityManager;
 import models.ModelType;
 import models.RawModel;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 import scene.Scene;
-import terrains.Terrain;
+import entities.Terrain;
 import utils.Maths;
 
 import java.io.BufferedReader;
@@ -18,102 +19,150 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class ModelLoader {
+public class SceneLoader {
 
-
-
-    private static ModelLoader modelLoader = new ModelLoader();
-
-    private HashMap<ModelType, HashMap<String, RawModel>> models = new HashMap<>();
-
-    private ModelLoader() {}
-
-    public static ModelLoader getModelLoader() {
-        return modelLoader;
-    }
-
-    public Scene loadScene(Path path) {
+    /**
+     *  Load a scene.
+     *
+     * @param scenePath the path to the scene file.
+     * @return a new scene.
+     */
+    public Scene loadScene(Path scenePath) {
         Scene scene = new Scene();
         try {
-            if (!Files.exists(path)) {
+
+            if (!Files.exists(scenePath)) {
                 throw new IOException("Saves path not found");
             }
 
-            List<String> lines = Files.readAllLines(path);
+            List<String> lines = Files.readAllLines(scenePath);
 
             for (String line : lines) {
-                ModelType type;
                 if (line.startsWith("e ")) {
-                    type = ModelType.ENTITY;
+                    scene.addEntity(createEntity(line));
                 } else if (line.startsWith("t ")) {
-                    type = ModelType.TERRAIN;
-                } else {
-                    continue;
+                    scene.addTerrain(createTerrain(line));
                 }
-
-                String[] splitLine = line.split(" ");
-
-                RawModel model = this.loadObject(splitLine[1], type);
-
-                String[] location = splitLine[2].split("/");
-                Vector3f entityLocation = new Vector3f(Float.parseFloat(location[0]), Float.parseFloat(location[1]), Float.parseFloat(location[2]));
-
-                String[] rotation = splitLine[3].split("/");
-                float rotX = Float.parseFloat(rotation[0]);
-                float rotY = Float.parseFloat(rotation[1]);
-                float rotZ = Float.parseFloat(rotation[2]);
-                float scale = Float.parseFloat(splitLine[4]);
-
-                Entity entity = EntityManager.getManager().create(model, entityLocation, rotX, rotY, rotZ, scale);
-
-                switch (type) {
-                    case ENTITY:
-                        scene.addEntity(entity);
-                        break;
-                    case TERRAIN:
-                        scene.addTerrain(new Terrain(entity, this.heights, this.size, this.sizeOffset));
-                        break;
-                }
-
             }
         } catch (IOException e) {
-            System.out.println("Something went wrong with reading saves");
             e.printStackTrace();
+            System.out.println(e.getMessage());
         }
+
         return scene;
     }
 
-    private float[][] heights;
-    private Vector2f size;
-    private Vector2f sizeOffset;
+    /**
+     * Read a line from the scene file and return an entity.
+     *
+     * @param line the line from the scene file.
+     * @return an entity
+     * @throws IOException thrown if something went wrong.
+     */
+    private Entity createEntity(String line) throws IOException {
+        String[] splitLine = line.split(" ");
+        ObjectData data = loadObjectData(parsePath(splitLine[1]));
 
-    private RawModel loadObject(String name, ModelType type) throws IOException {
-        if (!models.containsKey(type)) {
-            models.put(type, new HashMap<String, RawModel>());
-        }
-        if (models.get(type).containsKey(name)) {
-            return models.get(type).get(name);
-        }
+        RawModel model = GLLoader.getLoader().loadToVao(data.positions, data.colors, data.normals, data.indices, splitLine[1]);
 
-        Path filePath = Paths.get(System.getProperty("user.dir") + "\\res\\save\\" + name + "\\" + name + ".obj");
-        if (!Files.exists(filePath)) {
-            throw new IOException("Expected object path doesn't exists: " + filePath.toString());
-        }
-        return loadObjectFile(filePath, type);
+        String[] position = splitLine[2].split("/");
+        Vector3f entityPosition = parseLine(position[0], position[1], position[2]);
+
+        String[] rotation = splitLine[3].split("/");
+        Vector3f entityRotation = parseLine(rotation[0], rotation[1], rotation[2]);
+
+        float scale = Float.parseFloat(splitLine[4]);
+
+        int entityId = EntityManager.getManager().create();
+        return new Entity(entityId, model, entityPosition, entityRotation, scale);
     }
 
-    private RawModel loadObjectFile(Path filePath, ModelType type) throws IOException {
-        if (!checkFilePath(filePath)) {
-            throw new IOException("Could not find path");
+    /**
+     * Read a line from the scene file and return a terrain entity.
+     *
+     * @param line the line from the scene file.
+     * @return terrain
+     * @throws IOException thrown if something went wrong.
+     */
+    private Terrain createTerrain(String line) throws IOException {
+        String[] splitLine = line.split(" ");
+        ObjectData data = loadObjectData(parsePath(splitLine[1]));
+
+        String[] position = splitLine[2].split("/");
+        Vector3f terrainPosition = parseLine(position[0], position[1], position[2]);
+
+        String[] rotation = splitLine[3].split("/");
+        Vector3f terrainRotation = parseLine(rotation[0], rotation[1], rotation[2]);
+
+        Matrix4f transformationMatrix = Maths.createTransformationMatrix(terrainPosition, terrainRotation.x, terrainRotation.y, terrainRotation.z, 1);
+
+        List<Vector3f> vertices = transformVertices(transformationMatrix, data.vertices);
+
+        Vector2f highestSize = new Vector2f(vertices.get(0).x, vertices.get(0).z);
+        Vector2f lowestSize = new Vector2f(vertices.get(0).x, vertices.get(0).z);
+
+        for (Vector3f vertex : vertices) {
+            if (vertex.x > highestSize.x) {
+                highestSize.x = vertex.x;
+            }
+            if (vertex.z > highestSize.y) {
+                highestSize.y = vertex.z;
+            }
+            if (vertex.x < lowestSize.x) {
+                lowestSize.x = vertex.x;
+            }
+            if (vertex.z < lowestSize.y) {
+                lowestSize.y = vertex.z;
+            }
         }
 
+        // The x size.
+        int xSize = (int) (Math.ceil(highestSize.x) - Math.floor(lowestSize.x));
+        // This is the zSize and not y because in 3D it is the z axis.
+        int zSize = (int) (Math.ceil(highestSize.y) - Math.floor(lowestSize.y));
+        Vector2f size = new Vector2f(xSize, zSize);
+
+        // Vector to put the model to the ( 0, 0) point.
+        Vector2f sizeOffset = new Vector2f((float) -Math.floor(lowestSize.x), (float) -Math.floor(lowestSize.y));
+
+        // The heights of a rounded point of this model.
+        // This is only used if the model type is Terrain.
+        float[][] heights = new float[(int) size.x + 1][(int) size.y + 1];
+
+        for (Triangle triangle : data.triangles) {
+            addHeight(heights, sizeOffset, triangle, vertices);
+        }
+
+        RawModel model = GLLoader.getLoader().loadToVao(data.positions, data.colors, data.normals, data.indices, splitLine[1]);
+
+        int entityId = EntityManager.getManager().create();
+        return new Terrain(entityId, model, terrainPosition, terrainRotation, 1, heights, size, sizeOffset);
+    }
+
+    /**
+     * Load a path to a model.
+     *
+     * @param path the path to load.
+     * @return the model.
+     * @throws IOException thrown if something went wrong.
+     */
+    private ObjectData loadObjectData(Path path) throws IOException {
+        if (!checkFilePath(path)) {
+            throw new IOException("Could not find path while loading model: " + path);
+        }
+
+        System.out.println("Try loading object data of: " + path);
         long startTime = System.currentTimeMillis();
 
-        // the HashMap that contains all the materials with the string as name.
+        String originDirectory = String.join("", path.toAbsolutePath().toString().split(path.getFileName().toString()));
+
+        // All the lines of the .obj file.
+        List<String> lines = Files.readAllLines(path);
+
+        // The HashMap that contains all the materials with the string as name.
         HashMap<String, Material> materialHashMap = new HashMap<>();
         // Faces are separated by a material so for every material there is a
         HashMap<Material, ArrayList<Integer>> positionIndices = new HashMap<>();
@@ -124,22 +173,13 @@ public class ModelLoader {
         // A list of all vertex normals.
         List<Vector3f> normalVectors = new ArrayList<>();
 
-
-        String line;
-
-        System.out.println("Try loading: " + filePath);
-        String originDirectory = String.join("", filePath.toAbsolutePath().toString().split(filePath.getFileName().toString()));
-        BufferedReader reader = Files.newBufferedReader(filePath, Charset.defaultCharset());
-        String name = filePath.getFileName().toString().split("\\.obj")[0];
-
         Vector2f highestSize = new Vector2f(0, 0);
         Vector2f lowestSize = new Vector2f(0, 0);
 
-        // loop through each line of the file and check what it is.
-        while ((line = reader.readLine()) != null) {
+        for (String line : lines) {
             String[] currentLine = line.split(" ");
             if (line.startsWith("mtllib ")) {
-                this.materialFileReader(Paths.get(originDirectory + currentLine[1]), materialHashMap);
+                readMaterialFile(Paths.get(originDirectory + currentLine[1]), materialHashMap);
             } else if (line.startsWith("v ")) {
                 Vector3f vertex = parseLine(currentLine[1], currentLine[2], currentLine[3]);
                 if (vertex.x > highestSize.x) {
@@ -154,7 +194,6 @@ public class ModelLoader {
                 if (vertex.z < lowestSize.y) {
                     lowestSize.y = vertex.z;
                 }
-
                 vertices.add(vertex);
             } else if (line.startsWith("vn ")) {
                 normalVectors.add(parseLine(currentLine[1], currentLine[2], currentLine[3]));
@@ -170,7 +209,6 @@ public class ModelLoader {
             positionIndices.put(materialHashMap.get(materialName), new ArrayList<>());
         }
 
-
         // A amount of all the indices of all triangles/faces.
         IntHolder indicesCount = new IntHolder();
 
@@ -180,7 +218,7 @@ public class ModelLoader {
         List<Triangle> triangles = new ArrayList<>();
 
         Material currentMaterial = null;
-        do {
+        for (String line : lines) {
             if (line == null || (!line.startsWith("f ") && !line.startsWith("usemtl "))) {
                 continue;
             }
@@ -195,8 +233,7 @@ public class ModelLoader {
                 // parse the face line and make a triangle object
                 triangles.add(parseFace(currentLine, currentMaterial, positionIndices.get(currentMaterial), indicesCount, distinctVertexCounter));
             }
-        } while ((line = reader.readLine()) != null);
-
+        }
 
         // Array of all positions that have a different color.
         // So a position can occur twice but that is because one has a different color.
@@ -219,10 +256,8 @@ public class ModelLoader {
 
         Vector2f sizeOffset = new Vector2f((float) -Math.floor(lowestSize.x), (float) -Math.floor(lowestSize.y));
 
-        System.out.println(size);
-        System.out.println(sizeOffset);
-
         // The heights of a rounded point of this model.
+        // This is only used if the model type is Terrain.
         float[][] heights = new float[(int) size.x + 1][(int) size.y + 1];
 
 
@@ -308,57 +343,24 @@ public class ModelLoader {
             normals[vertexPositionId3 * 3 + 2] = normalVectors.get(triangle.normal3 - 1).z;
             //*********************************************************************************************************/
 
-
-            //*********************************************************************************************************/
-            // Calculate average normal of the triangle and set every vertex normal to that triangle normal.
-            // However this won't work if you have triangles with the same material because they could have a different
-            // triangle normals and one would overwrite another with as result that there are certain triangles
-            // attached to each other with the same color.
-//            Vector3f vertexNormal1 = normalVectors.get(triangle.normal1 - 1);
-//            Vector3f vertexNormal2 = normalVectors.get(triangle.normal2 - 1);
-//            Vector3f vertexNormal3 = normalVectors.get(triangle.normal3 - 1);
-//
-//            float avrX = (vertexNormal1.x + vertexNormal2.x + vertexNormal3.x) / 3;
-//            float avrY = (vertexNormal1.y + vertexNormal2.y + vertexNormal3.y) / 3;
-//            float avrZ = (vertexNormal1.z + vertexNormal2.z + vertexNormal3.z) / 3;
-//
-//            Vector3f currentNormal = new Vector3f(avrX, avrY, avrZ);
-//
-//            normals[vertexPositionId1 * 3] = currentNormal.x;
-//            normals[vertexPositionId1 * 3 + 1] = currentNormal.y;
-//            normals[vertexPositionId1 * 3 + 2] = currentNormal.z;
-//
-//            normals[vertexPositionId2 * 3] = currentNormal.x;
-//            normals[vertexPositionId2 * 3 + 1] = currentNormal.y;
-//            normals[vertexPositionId2 * 3 + 2] = currentNormal.z;
-//
-//            normals[vertexPositionId3 * 3] = currentNormal.x;
-//            normals[vertexPositionId3 * 3 + 1] = currentNormal.y;
-//            normals[vertexPositionId3 * 3 + 2] = currentNormal.z;
-            //*********************************************************************************************************/
-
             trianglePointer++;
         }
 
         long duration = System.currentTimeMillis() - startTime;
-        System.out.println("Model loaded in: " + duration + " millis");
+        System.out.println("Object data loaded in: " + duration + " millis");
 
-
-        // The numbers are indices to the vertices and normals
-        // f vertex/texture/normal vertex/texture/normal vertex/texture/normal
-        // f 118   /       /163    130   /       /163    276   /       /163
-
-
-        GLLoader loader = GLLoader.getLoader();
-        RawModel model = loader.loadToVao(positions, colors, normals, indices, name);
-        model.setType(type);
-        models.get(type).put(model.getName(), model);
-        this.heights = heights;
-        this.size = size;
-        this.sizeOffset = sizeOffset;
-
-        return model;
+        return new ObjectData(triangles, vertices, normalVectors, materialHashMap, positions, colors, normals, indices, heights, size, sizeOffset);
     }
+
+    private List<Vector3f> transformVertices(Matrix4f transformationMatrix, List<Vector3f> vertices) {
+        List<Vector3f> transformedVertices = new ArrayList<>();
+        for (Vector3f vertex : vertices) {
+            Vector4f transformedVertex = Maths.matrixVectorMultiplication(transformationMatrix, new Vector4f(vertex.x, vertex.y, vertex.z, 1));
+            transformedVertices.add(new Vector3f(transformedVertex.x, transformedVertex.y, transformedVertex.z));
+        }
+        return transformedVertices;
+    }
+
 
     /**
      * Add the heights within a triangle to the heights array.
@@ -447,20 +449,18 @@ public class ModelLoader {
         return (s.x - pointB.x) * (pointA.y - pointB.y) - (pointA.x - pointB.x) * (s.y - pointB.y);
     }
 
-
+    /**
+     * Checks if a path is a file and if it has the .obj extension.
+     *
+     * @param filePath the path to check.
+     * @return false if directory or other extension.
+     */
     private boolean checkFilePath(Path filePath) {
         if (Files.isDirectory(filePath)) {
             return false;
         }
         String fileName = filePath.getFileName().toString();
-        if (!fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length()).equals("obj")) {
-            return false;
-        }
-        return true;
-    }
-
-    private Vector3f parseLine(String first, String second, String third) {
-        return new Vector3f(Float.parseFloat(first), Float.parseFloat(second), Float.parseFloat(third));
+        return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length()).equals("obj");
     }
 
     private Triangle parseFace(String[] currentLine, Material currentMaterial, ArrayList<Integer> materialIndices, IntHolder indicesCount, IntHolder distinctVertexCounter) {
@@ -496,12 +496,44 @@ public class ModelLoader {
         return triangle;
     }
 
-    private void materialFileReader(Path file, HashMap<String, Material> materialHashMap) {
-        String line;
+    /**
+     * Adds the expected path to a name.
+     *
+     * @param name the name of the model.
+     * @return An expected path to the model.
+     * @throws IOException thrown if the file doesn't exists.
+     */
+    private Path parsePath(String name) throws IOException {
+        Path filePath = Paths.get(System.getProperty("user.dir") + "\\res\\save\\" + name + "\\" + name + ".obj");
+        if (!Files.exists(filePath)) {
+            throw new IOException("Expected object path doesn't exists: " + filePath.toString());
+        }
+        return filePath;
+    }
+
+    /**
+     * Parse 3 string to floats and return a vector.
+     *
+     * @param first the first point
+     * @param second the second point
+     * @param third the third point
+     * @return a vector containing all the points.
+     */
+    private Vector3f parseLine(String first, String second, String third) {
+        return new Vector3f(Float.parseFloat(first), Float.parseFloat(second), Float.parseFloat(third));
+    }
+
+    /**
+     * Reads a .mtl file and add every material to the {@param materialHashMap}
+     *
+     * @param file the path to the .mtl file.
+     * @param materialHashMap the HashMap containing all the materials.
+     */
+    private void readMaterialFile(Path file, HashMap<String, Material> materialHashMap) {
         StringBuilder fileContent = new StringBuilder();
         try {
-            BufferedReader reader = Files.newBufferedReader(file, Charset.defaultCharset());
-            while ((line = reader.readLine()) != null) {
+            List<String> lines = Files.readAllLines(file);
+            for (String line : lines) {
                 fileContent.append(line).append("\n");
             }
         } catch (IOException e) {
@@ -537,12 +569,50 @@ public class ModelLoader {
     private class IntHolder {
         private int value = 0;
 
-        public int getValue() {
+        int getValue() {
             return value;
         }
 
-        public void increment() {
+        void increment() {
             value++;
+        }
+    }
+
+    private class ObjectData {
+        List<Triangle> triangles;
+        List<Vector3f> vertices;
+        List<Vector3f> normalVectors;
+        HashMap<String, Material> materialHashMap;
+        float[] positions;
+        float[] colors;
+        float[] normals;
+        int[] indices;
+        float[][] heights;
+        Vector2f size;
+        Vector2f sizeOffset;
+
+        ObjectData(List<Triangle> triangles,
+                   List<Vector3f> vertices,
+                   List<Vector3f> normalVectors,
+                   HashMap<String, Material> materialHashMap,
+                   float[] positions,
+                   float[] colors,
+                   float[] normals,
+                   int[] indices,
+                   float[][] heights,
+                   Vector2f size,
+                   Vector2f sizeOffset) {
+            this.triangles = triangles;
+            this.vertices = vertices;
+            this.normalVectors = normalVectors;
+            this.materialHashMap = materialHashMap;
+            this.positions = positions;
+            this.colors = colors;
+            this.normals = normals;
+            this.indices = indices;
+            this.heights = heights;
+            this.size = size;
+            this.sizeOffset = sizeOffset;
         }
     }
 

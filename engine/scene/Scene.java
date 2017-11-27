@@ -1,7 +1,7 @@
 package scene;
 
 import entities.Entity;
-import terrains.Terrain;
+import entities.Terrain;
 
 import java.util.ArrayList;
 import java.util.List;

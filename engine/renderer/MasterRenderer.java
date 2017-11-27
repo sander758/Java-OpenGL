@@ -1,8 +1,8 @@
 package renderer;
 
-import entities.Camera;
+import scene.Camera;
 import entities.Entity;
-import entities.Light;
+import scene.Light;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.util.vector.Matrix4f;

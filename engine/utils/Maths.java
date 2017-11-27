@@ -1,6 +1,6 @@
 package utils;
 
-import entities.Camera;
+import scene.Camera;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;

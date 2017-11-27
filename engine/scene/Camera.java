@@ -1,9 +1,10 @@
-package entities;
+package scene;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
-import terrains.Terrain;
+import entities.Terrain;
 import utils.DisplayManager;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class Camera {
 
     private Vector3f position;
     private float pitch = 45;
-    private float yaw = 0;
+    private float yaw = 270;
 
     public Camera(Vector3f position) {
         this.position = position;
@@ -76,20 +77,38 @@ public class Camera {
         Terrain currentTerrain = null;
 
         for (Terrain terrain : terrains) {
-            float highestX = terrain.getEntity().getPosition().x + terrain.getSize().x - terrain.getSizeOffset().x;
-            float highestZ = terrain.getEntity().getPosition().z + terrain.getSize().y - terrain.getSizeOffset().y;
+            float pointAx = terrain.getPosition().x - terrain.getSizeOffset().x;
+            float pointAz = terrain.getPosition().z - terrain.getSizeOffset().y;
 
-            float lowestX = terrain.getEntity().getPosition().x - terrain.getSize().x + terrain.getSizeOffset().x;
-            float lowestZ = terrain.getEntity().getPosition().z - terrain.getSize().y + terrain.getSizeOffset().y;
+            float pointBx = terrain.getPosition().x + terrain.getSizeOffset().x;
+            float pointBz = terrain.getPosition().z + terrain.getSizeOffset().y;
 
-            if (position.x >= lowestX && position.x <= highestX
-                    && position.z >= lowestZ && position.z <= highestZ) {
+            Vector2f highest = new Vector2f(pointAx, pointAz);
+            Vector2f lowest = new Vector2f(pointBx, pointBz);
+
+            if (pointBx > pointAx) {
+                highest.x = pointBx;
+            }
+            if (pointBz > pointAz) {
+                highest.y = pointBz;
+            }
+
+            if (pointAx < pointBx) {
+                lowest.x = pointAx;
+            }
+            if (pointAz < pointBz) {
+                lowest.y = pointAz;
+            }
+
+            if (position.x >= lowest.x
+                    && position.x <= highest.x
+                    && position.z >= lowest.y
+                    && position.z <= highest.y) {
+
                 currentTerrain = terrain;
                 break;
             }
         }
-
-//        System.out.println("current terrain: " + (currentTerrain == null ? 0 : currentTerrain.getEntity().getId()) );
 
         if (currentTerrain == null) {
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {

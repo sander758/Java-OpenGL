@@ -1,7 +1,6 @@
 package shadows;
 
 import java.util.List;
-import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -74,7 +73,7 @@ public class ShadowMapEntityRenderer {
 	 */
 	private void prepareInstance(Entity entity) {
 		Matrix4f modelMatrix = Maths.createTransformationMatrix(entity.getPosition(),
-				entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
+				entity.getRotation().x, entity.getRotation().y, entity.getRotation().z, entity.getScale());
 		Matrix4f mvpMatrix = Matrix4f.mul(projectionViewMatrix, modelMatrix, null);
 		shader.loadMvpMatrix(mvpMatrix);
 	}
