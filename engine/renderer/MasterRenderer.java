@@ -128,5 +128,9 @@ public class MasterRenderer {
 
     public void cleanUp() {
         entityRenderer.cleanUp();
+        terrainRenderer.cleanUp();
+        waterRenderer.cleanUp();
+        reflectionFbo.delete();
+        refractionFbo.delete();
     }
 }

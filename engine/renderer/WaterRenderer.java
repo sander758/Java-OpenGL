@@ -36,6 +36,7 @@ public class WaterRenderer {
 
 //        OpenGlUtils.goWireframe(true);
         OpenGlUtils.enableAlphaBlending();
+        OpenGlUtils.cullBackFaces(false);
 
         waterShader.start();
         waterShader.loadViewMatrix(camera);
@@ -60,6 +61,7 @@ public class WaterRenderer {
         waterShader.stop();
 
         OpenGlUtils.disableBlending();
+        OpenGlUtils.cullBackFaces(true);
 //        OpenGlUtils.goWireframe(false);
     }
 
@@ -67,4 +69,9 @@ public class WaterRenderer {
         time += WaterTile.WAVE_SPEED;
         waterShader.loadWaveTime(time);
     }
+
+    public void cleanUp() {
+        waterShader.cleanUp();
+    }
+
 }

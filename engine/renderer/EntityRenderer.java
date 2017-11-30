@@ -37,7 +37,7 @@ public class EntityRenderer {
             GL20.glEnableVertexAttribArray(1);
             GL20.glEnableVertexAttribArray(2);
 
-//            entity.increaseRotation(0, 3, 0);
+//            entity.increaseRotation(0, -1, 0);
             Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotation().x, entity.getRotation().y, entity.getRotation().z, entity.getScale());
             staticShader.loadTransformationMatrix(transformationMatrix);
 

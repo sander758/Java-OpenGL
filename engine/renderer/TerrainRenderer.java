@@ -57,4 +57,8 @@ public class TerrainRenderer {
 
         terrainShader.stop();
     }
+
+    public void cleanUp() {
+        terrainShader.cleanUp();
+    }
 }

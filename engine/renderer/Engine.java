@@ -60,8 +60,7 @@ public class Engine {
 //        guiTextures.add(new GuiTexture(3, new Vector2f(0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
 
 
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glCullFace(GL11.GL_BACK);
+        OpenGlUtils.cullBackFaces(true);
     }
 
     public void update() {
