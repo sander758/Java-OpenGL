@@ -11,6 +11,7 @@ import org.lwjgl.util.vector.Vector4f;
 import scene.Scene;
 import entities.Terrain;
 import utils.Maths;
+import water.WaterTile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,8 @@ public class SceneLoader {
                     scene.addEntity(createEntity(line));
                 } else if (line.startsWith("t ")) {
                     scene.addTerrain(createTerrain(line));
+                } else if (line.startsWith("w ")) {
+                    scene.addWaterTile(createWaterTile(line));
                 }
             }
         } catch (IOException e) {
@@ -140,6 +143,20 @@ public class SceneLoader {
 
         int entityId = EntityManager.getManager().create();
         return new Terrain(entityId, model, terrainPosition, terrainRotation, 1, heights, size, sizeOffset);
+    }
+
+    private WaterTile createWaterTile(String line) {
+        String[] splitLine = line.split(" ");
+
+        String[] position = splitLine[1].split("/");
+        Vector2f waterPosition = new Vector2f(Float.parseFloat(position[0]), Float.parseFloat(position[1]));
+
+        int radius = Integer.parseInt(splitLine[2]);
+
+        System.out.println("water position: " + waterPosition);
+        System.out.println("water radius: " + radius);
+
+        return new WaterTile(waterPosition, radius);
     }
 
     /**

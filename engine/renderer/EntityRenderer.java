@@ -1,5 +1,6 @@
 package renderer;
 
+import org.lwjgl.util.vector.Vector4f;
 import scene.Camera;
 import entities.Entity;
 import scene.Light;
@@ -16,19 +17,19 @@ public class EntityRenderer {
 
     private StaticShader staticShader;
 
-    public EntityRenderer() {
+    public EntityRenderer(Matrix4f projectionMatrix) {
         staticShader = new StaticShader();
-        Matrix4f projectionMatrix = Maths.createProjectionMatrix();
 
         staticShader.start();
         staticShader.loadProjectionMatrix(projectionMatrix);
         staticShader.stop();
     }
 
-    public void render(List<Entity> entities, Camera camera, Light light) {
+    public void render(List<Entity> entities, Camera camera, Light light, Vector4f clipPlane) {
         staticShader.start();
         staticShader.loadViewMatrix(camera);
         staticShader.loadLight(light);
+        staticShader.loadClipPlane(clipPlane);
 
         for (Entity entity : entities) {
             GL30.glBindVertexArray(entity.getModel().getVaoID());

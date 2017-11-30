@@ -8,6 +8,7 @@ in vec3 in_normal;
 out vec3 passColor;
 out vec3 surfaceNormal;
 out vec3 toLightVector;
+out vec4 worldPos;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -18,6 +19,7 @@ uniform vec3 lightDirection;
 
 void main() {
     vec4 worldPosition = transformationMatrix * vec4(in_position.xyz, 1.0);
+    worldPos = worldPosition;
 
     vec4 positionRelativeToCam = viewMatrix * worldPosition;
     gl_Position = projectionMatrix * positionRelativeToCam;

@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector4f;
 public class Maths {
     public static final float FOV = 70;
     public static final float NEAR_PLANE = 0.1f;
-    private static final float FAR_PLANE = 1000;
+    public static final float FAR_PLANE = 1000;
 
     public static float baryCentric(Vector3f p1, Vector3f p2, Vector3f p3, Vector2f pos) {
         float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);

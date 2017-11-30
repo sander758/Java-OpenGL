@@ -10,12 +10,13 @@ out vec4 out_Color;
 uniform vec3 lightColor;
 uniform sampler2D shadowMap;
 uniform float mapSize;
+uniform bool doShadow;
 
 // percentage closer filtering
 const int pcfCount = 2;
 const float totalTexels = (pcfCount * 2.0 + 1.0) * (pcfCount * 2.0 + 1.0);
 
-void main(void) {
+float calculateLightFactor() {
     float texelSize = 1.0 / mapSize;
     float total = 0.0;
 
@@ -29,9 +30,20 @@ void main(void) {
     }
     total /= totalTexels;
     float lightFactor = 1.0 - (total * 0.6 * shadowCoords.w);
+    return lightFactor;
+}
+
+void main(void) {
+
 
 
     vec3 diffuse = passBrightness * lightColor;
 
-    out_Color = vec4(diffuse * lightFactor, 1.0) * vec4(finalColor, 0);
+    if (doShadow) {
+        float lightFactor = calculateLightFactor();
+        out_Color = vec4(diffuse * lightFactor, 1.0) * vec4(finalColor, 0);
+    } else {
+        out_Color = vec4(diffuse, 1.0) * vec4(finalColor, 1);
+    }
+
 }

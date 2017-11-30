@@ -8,9 +8,12 @@ in vec3 passColor[];
 in vec3 surfaceNormal[];
 in vec3 toLightVector[];
 in vec4 passShadowCoords[];
+in vec4 worldPos[];
 
 uniform vec3 lightDirection; // direction from the light to the surface
 uniform vec3 lightColor;
+
+uniform vec4 clipPlane;
 
 out vec3 finalColor;
 out float passBrightness;
@@ -33,18 +36,21 @@ void main() {
     finalColor = resultColor;
     passBrightness = brightness;
     shadowCoords = passShadowCoords[0];
+    gl_ClipDistance[0] = dot(worldPos[0], clipPlane);
     EmitVertex();
 
     gl_Position = gl_in[1].gl_Position;
     finalColor = resultColor;
     passBrightness = brightness;
     shadowCoords = passShadowCoords[1];
+    gl_ClipDistance[0] = dot(worldPos[1], clipPlane);
     EmitVertex();
 
     gl_Position = gl_in[2].gl_Position;
     finalColor = resultColor;
     passBrightness = brightness;
     shadowCoords = passShadowCoords[2];
+    gl_ClipDistance[0] = dot(worldPos[2], clipPlane);
     EmitVertex();
 
     EndPrimitive();

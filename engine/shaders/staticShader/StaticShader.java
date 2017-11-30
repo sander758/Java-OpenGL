@@ -1,5 +1,6 @@
 package shaders.staticShader;
 
+import org.lwjgl.util.vector.Vector4f;
 import scene.Camera;
 import scene.Light;
 import org.lwjgl.util.vector.Matrix4f;
@@ -17,6 +18,7 @@ public class StaticShader extends ShaderProgram {
     private int location_viewMatrix;
     private int location_lightDirection;
     private int location_lightColor;
+    private int location_clipPlane;
 
     public StaticShader() {
         super(VERTEX_FILE, GEOMETRY_FILE, FRAGMENT_FILE);
@@ -29,6 +31,7 @@ public class StaticShader extends ShaderProgram {
         this.location_viewMatrix = super.getUniformLocation("viewMatrix");
         this.location_lightDirection = super.getUniformLocation("lightDirection");
         this.location_lightColor = super.getUniformLocation("lightColor");
+        this.location_clipPlane = super.getUniformLocation("clipPlane");
     }
 
     @Override
@@ -54,5 +57,9 @@ public class StaticShader extends ShaderProgram {
     public void loadLight(Light light) {
         super.loadVector(location_lightDirection, light.getDirection());
         super.loadVector(location_lightColor, light.getColor());
+    }
+
+    public void loadClipPlane(Vector4f clipPlane) {
+        super.loadVector(location_clipPlane, clipPlane);
     }
 }

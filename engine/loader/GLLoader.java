@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -44,6 +45,14 @@ public class GLLoader {
         return new RawModel(vaoID, positions.length / 2, name);
     }
 
+    public RawModel loadToVao(float[] positions, byte[] indicators, String name) {
+        int vaoID = createVAO();
+        this.storeDataInAttributeList(0, 2, positions);
+        this.storeDataInAttributeList(1, 4, indicators);
+        unbindVAO();
+        return new RawModel(vaoID, positions.length / 2, name);
+    }
+
     public void cleanUp() {
         for (int vao: this.vaos) {
             GL30.glDeleteVertexArrays(vao);
@@ -71,6 +80,16 @@ public class GLLoader {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
+    private void storeDataInAttributeList(int attributeNumber, int size, byte[] data) {
+        int vboID = GL15.glGenBuffers();
+        this.vbos.add(vboID);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+        ByteBuffer buffer = this.storeDataInByteBuffer(data);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(attributeNumber, size, GL11.GL_BYTE, false, 0, 0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
     private void unbindVAO() {
         GL30.glBindVertexArray(0);
     }
@@ -92,6 +111,13 @@ public class GLLoader {
 
     private FloatBuffer storeDataInFloatBuffer(float[] data) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return buffer;
+    }
+
+    private ByteBuffer storeDataInByteBuffer(byte[] data) {
+        ByteBuffer buffer = BufferUtils.createByteBuffer(data.length);
         buffer.put(data);
         buffer.flip();
         return buffer;

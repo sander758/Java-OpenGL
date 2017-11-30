@@ -16,7 +16,7 @@ public class Camera {
 
     private Vector3f position;
     private float pitch = 45;
-    private float yaw = 270;
+    private float yaw = 0;
 
     public Camera(Vector3f position) {
         this.position = position;
@@ -32,6 +32,10 @@ public class Camera {
 
     public float getYaw() {
         return yaw;
+    }
+
+    public void invertPitch() {
+        this.pitch = -pitch;
     }
 
     public void move(List<Terrain> terrains) {

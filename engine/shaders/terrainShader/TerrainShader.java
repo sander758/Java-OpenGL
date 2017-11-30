@@ -1,5 +1,6 @@
 package shaders.terrainShader;
 
+import org.lwjgl.util.vector.Vector4f;
 import scene.Camera;
 import scene.Light;
 import org.lwjgl.util.vector.Matrix4f;
@@ -20,6 +21,8 @@ public class TerrainShader extends ShaderProgram {
     private int location_shadowMap;
     private int location_shadowDistance;
     private int location_shadowMapSize;
+    private int location_clipPlane;
+    private int location_doShadow;
 
     public TerrainShader() {
         super(VERTEX_FILE, GEOMETRY_FILE, FRAGMENT_FILE);
@@ -36,6 +39,8 @@ public class TerrainShader extends ShaderProgram {
         this.location_shadowMap = super.getUniformLocation("shadowMap");
         this.location_shadowDistance = super.getUniformLocation("shadowDistance");
         this.location_shadowMapSize = super.getUniformLocation("mapSize");
+        this.location_clipPlane = super.getUniformLocation("clipPlane");
+        this.location_doShadow = super.getUniformLocation("doShadow");
     }
 
     public void connectTextureUnits() {
@@ -76,6 +81,14 @@ public class TerrainShader extends ShaderProgram {
     }
 
     public void loadShadowMapSize(float mapSize) {
-        this.loadFloat(location_shadowMapSize, mapSize);
+        super.loadFloat(location_shadowMapSize, mapSize);
+    }
+
+    public void loadClipPlane(Vector4f clipPlane) {
+        super.loadVector(location_clipPlane, clipPlane);
+    }
+
+    public void loadDoShadow(boolean doShadow) {
+        super.loadBool(location_doShadow, doShadow);
     }
 }

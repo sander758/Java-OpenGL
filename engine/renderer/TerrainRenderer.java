@@ -1,6 +1,6 @@
 package renderer;
 
-import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 import scene.Camera;
 import scene.Light;
 import org.lwjgl.opengl.GL11;
@@ -17,10 +17,8 @@ public class TerrainRenderer {
 
     private TerrainShader terrainShader;
 
-    public TerrainRenderer(float shadowDistance, float shadowMapSize) {
+    public TerrainRenderer(Matrix4f projectionMatrix, float shadowDistance, float shadowMapSize) {
         terrainShader = new TerrainShader();
-
-        Matrix4f projectionMatrix = Maths.createProjectionMatrix();
 
         terrainShader.start();
         terrainShader.loadProjectionMatrix(projectionMatrix);
@@ -30,11 +28,13 @@ public class TerrainRenderer {
         terrainShader.stop();
     }
 
-    public void render(List<Terrain> terrains, Camera camera, Light light, Matrix4f toShadowSpace) {
+    public void render(List<Terrain> terrains, Camera camera, Light light, Vector4f clipPlane, Matrix4f toShadowSpace, boolean doShadow) {
         terrainShader.start();
         terrainShader.loadViewMatrix(camera);
         terrainShader.loadLight(light);
         terrainShader.loadToShadowSpaceMatrix(toShadowSpace);
+        terrainShader.loadClipPlane(clipPlane);
+        terrainShader.loadDoShadow(doShadow);
 
         for (Terrain terrain : terrains) {
             GL30.glBindVertexArray(terrain.getModel().getVaoID());
