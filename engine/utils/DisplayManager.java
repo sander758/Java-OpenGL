@@ -3,6 +3,7 @@ package utils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
+import renderer.Engine;
 
 public class DisplayManager {
 
@@ -21,7 +22,7 @@ public class DisplayManager {
             ContextAttribs attributes = new ContextAttribs(3, 2).withProfileCore(true).withForwardCompatible(true);
             Display.create(new PixelFormat().withSamples(4).withDepthBits(24), attributes);
             Display.setTitle(TITLE);
-            Display.setInitialBackground(1, 1, 1);
+            Display.setInitialBackground(Engine.skyColor.x, Engine.skyColor.y, Engine.skyColor.z);
             GL11.glEnable(GL13.GL_MULTISAMPLE);
         } catch (LWJGLException e) {
             e.printStackTrace();

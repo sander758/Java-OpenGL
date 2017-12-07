@@ -61,10 +61,6 @@ public class MasterRenderer {
      * @param clipPlane
      */
     public void render(Scene scene, Camera camera, Light light, Vector4f clipPlane) {
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glClearColor(0.4667f, 0.901f, 1f, 1.0f);
-
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, shadowMapMasterRenderer.getShadowMap());
 
@@ -107,7 +103,7 @@ public class MasterRenderer {
     }
 
     private void prepare() {
-        GL11.glClearColor(1f, 1f, 1f, 1f);
+        GL11.glClearColor(Engine.skyColor.x, Engine.skyColor.y, Engine.skyColor.z, 1f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL32.glProvokingVertex(GL32.GL_FIRST_VERTEX_CONVENTION);
         OpenGlUtils.cullBackFaces(true);

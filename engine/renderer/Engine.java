@@ -29,6 +29,8 @@ import java.util.List;
 
 public class Engine {
 
+    public static Vector3f skyColor = new Vector3f(0.4667f, 0.901f, 1f);
+
     private static final float REFRACT_OFFSET = 1f;
     private static final float REFLECT_OFFSET = 0.1f;
 
@@ -52,7 +54,7 @@ public class Engine {
 
         shadowMapRenderer = new ShadowMapMasterRenderer(camera);
         masterRenderer = new MasterRenderer(shadowMapRenderer);
-        light = new Light(new Vector3f(0.4f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
+        light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 
         guiRenderer = new GuiRenderer();
 //        guiTextures.add(new GuiTexture(shadowMapRenderer.getShadowMap(), new Vector2f(-0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
@@ -65,6 +67,10 @@ public class Engine {
 
     public void update() {
         camera.move(scene.getTerrains());
+
+        OpenGlUtils.enableDepthTesting(true);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
 
         masterRenderer.renderShadowMap(scene.getEntities(), light.getDirection());
 
