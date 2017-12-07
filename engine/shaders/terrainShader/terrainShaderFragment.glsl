@@ -34,9 +34,6 @@ float calculateLightFactor() {
 }
 
 void main(void) {
-
-
-
     vec3 diffuse = passBrightness * lightColor;
 
     if (doShadow) {

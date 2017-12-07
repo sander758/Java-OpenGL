@@ -29,7 +29,7 @@ void main() {
 
     float nDotL = dot(unitLight, unitNormal);
 //    float brightness = max(nDotL, 0.3);
-    float brightness = (max(nDotL, 0) / 2) + 0.25;
+    float brightness = ((max(nDotL, 0.2) / 2) + 0.25) * 2;
 
 
     gl_Position = gl_in[0].gl_Position;
