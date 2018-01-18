@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
 public class WaterTile {
 
     public static final float WATER_HEIGHT = -0.5f;
-    public static final float WAVE_SPEED = 0.002f;
+    public static final float WAVE_SPEED = 0.14f;
 
     public static final float REFRACT_OFFSET = 1f;
     public static final float REFLECT_OFFSET = 0.1f;

@@ -19,6 +19,7 @@ import nl.sander758.gameclient.engine.terrainSystem.Terrain;
 import nl.sander758.gameclient.engine.terrainSystem.TerrainRenderer;
 import nl.sander758.gameclient.engine.utils.Maths;
 import nl.sander758.gameclient.engine.utils.OpenGlUtils;
+import nl.sander758.gameclient.engine.utils.Timer;
 import nl.sander758.gameclient.engine.waterSystem.WaterRenderer;
 import nl.sander758.gameclient.engine.waterSystem.WaterTile;
 import org.joml.Matrix4f;
@@ -111,15 +112,13 @@ public class Engine {
 
         OpenGlUtils.enableDepthTesting(true);
 
+        // Starts the delta timer.
+        Timer.start();
+
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(WindowManager.getWindow()) ) {
-            // Poll for window events. The key keyboardInputCallback above will only be
-            // invoked during this call.
-            glfwPollEvents();
             camera.move(terrains);
-
-//            treeEntity.increaseRotation(0, 1, 0);
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
             doReflectionRender(new Vector4f(0, 1, 0, -WaterTile.WATER_HEIGHT + WaterTile.REFLECT_OFFSET));
@@ -127,9 +126,14 @@ public class Engine {
             GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 
             doMainRender(new Vector4f(0, 0, 0, 0));
-
-            glfwSwapBuffers(WindowManager.getWindow()); // swap the color buffers
+            update();
         }
+    }
+
+    private void update() {
+        glfwSwapBuffers(WindowManager.getWindow()); // swap the color buffers
+        glfwPollEvents(); // Poll for window events. The key keyboardInputCallback above will only be invoked during this call.
+        Timer.update();
     }
 
     private void prepareRender() {

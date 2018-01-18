@@ -4,6 +4,7 @@ import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
 import nl.sander758.gameclient.engine.input.MouseInputListener;
 import nl.sander758.gameclient.engine.terrainSystem.Terrain;
+import nl.sander758.gameclient.engine.utils.Timer;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
             KEY_DOWN = 1;
 
 
-    private float speed = 0.2f;
+    private float speed = 10f;
     private float mouseSensitivity = 0.2f;
 
     private Vector3f position;
@@ -67,28 +68,30 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
         float newX = (float) (Math.sin(Math.toRadians(yaw)));
         float newZ = (float) (Math.cos(Math.toRadians(yaw)));
 
+        float currentSpeed = Timer.getDeltaTime() * speed;
+
         if (W_KEY_STATE == KEY_DOWN) {
-            position.x += newX * speed;
-            position.z -= newZ * speed;
+            position.x += newX * currentSpeed;
+            position.z -= newZ * currentSpeed;
         }
         if (S_KEY_STATE == KEY_DOWN) {
-            position.x -= newX * speed;
-            position.z += newZ * speed;
+            position.x -= newX * currentSpeed;
+            position.z += newZ * currentSpeed;
         }
         if (D_KEY_STATE == KEY_DOWN) {
-            position.x += newZ * speed;
-            position.z += newX * speed;
+            position.x += newZ * currentSpeed;
+            position.z += newX * currentSpeed;
         }
         if (A_KEY_STATE == KEY_DOWN) {
-            position.x -= newZ * speed;
-            position.z -= newX * speed;
+            position.x -= newZ * currentSpeed;
+            position.z -= newX * currentSpeed;
         }
 
         if (LEFT_SHIT_STATE == KEY_DOWN) {
-            position.y -= speed;
+            position.y -= currentSpeed;
         }
         if (SPACE_STATE == KEY_DOWN) {
-            position.y += speed;
+            position.y += currentSpeed;
         }
 
 //        Terrain currentTerrain = null;
@@ -154,7 +157,7 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
 
     @Override
     public void mouseInputCallback(double offsetX, double offsetY) {
-        int state = InputManager.getMouseButtonState(GLFW_MOUSE_BUTTON_MIDDLE);
+        int state = InputManager.getMouseButtonState(GLFW_MOUSE_BUTTON_LEFT);
         if (state != GLFW_PRESS) {
             return;
         }

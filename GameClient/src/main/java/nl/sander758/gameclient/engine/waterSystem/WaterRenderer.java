@@ -4,6 +4,7 @@ import nl.sander758.gameclient.engine.display.Camera;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;
 import nl.sander758.gameclient.engine.utils.OpenGlUtils;
+import nl.sander758.gameclient.engine.utils.Timer;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -44,7 +45,7 @@ public class WaterRenderer {
         shader.lightDirection.loadUniform(light.getLightDirection());
         shader.lightColor.loadUniform(light.getLightColor());
         shader.lightBias.loadUniform(light.getBias());
-        time += WaterTile.WAVE_SPEED;
+        updateTime();
         shader.waveTime.loadUniform(time);
 
         for (WaterTile waterTile : waterTiles) {
@@ -70,5 +71,9 @@ public class WaterRenderer {
 
     public void cleanUp() {
         shader.cleanUp();
+    }
+
+    private void updateTime() {
+        time += WaterTile.WAVE_SPEED * Timer.getDeltaTime();
     }
 }
