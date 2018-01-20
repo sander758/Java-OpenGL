@@ -5,6 +5,7 @@ import nl.sander758.gameclient.client.models.SimpleTree;
 import nl.sander758.gameclient.client.models.Velociraptor;
 import nl.sander758.gameclient.engine.Engine;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
+import nl.sander758.gameclient.network.SocketClient;
 
 public class GameClient implements Runnable {
 
@@ -17,7 +18,11 @@ public class GameClient implements Runnable {
 
         registerModels();
 
+        SocketClient.connect();
+
         engine.start();
+
+        SocketClient.disconnect();
     }
 
     private void registerModels() {

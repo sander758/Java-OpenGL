@@ -30,7 +30,6 @@ switch ( OperatingSystem.current() ) {
 }
 
 project.ext.lwjglVersion = "3.1.5"
-project.ext.jomlVersion = "1.9.7"
 
 dependencies {
     compile "org.lwjgl:lwjgl:$lwjglVersion"
@@ -45,7 +44,8 @@ dependencies {
     compile "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives"
     compile "org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives"
     compile "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives"
-    compile "org.joml:joml:${jomlVersion}"
+
+    compile project(':Common')
 }
 
 

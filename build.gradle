@@ -1,5 +1,6 @@
-subprojects {
+project.ext.jomlVersion = "1.9.7"
 
+subprojects {
     apply plugin: "java"
 
     repositories {
@@ -8,5 +9,7 @@ subprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.12'
+
+        compile "org.joml:joml:${jomlVersion}"
     }
 }

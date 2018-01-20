@@ -1,10 +1,12 @@
 package nl.sander758.gameclient.engine.display;
 
+import nl.sander758.common.network.packets.EntityMovePacket;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
 import nl.sander758.gameclient.engine.input.MouseInputListener;
 import nl.sander758.gameclient.engine.terrainSystem.Terrain;
 import nl.sander758.gameclient.engine.utils.Timer;
+import nl.sander758.gameclient.network.SocketClient;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -93,6 +95,8 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
         if (SPACE_STATE == KEY_DOWN) {
             position.y += currentSpeed;
         }
+
+        SocketClient.trySend(new EntityMovePacket(position));
 
 //        Terrain currentTerrain = null;
 //
