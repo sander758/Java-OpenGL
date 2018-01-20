@@ -17,7 +17,7 @@ public class WindowManager {
     private static int HEIGHT = 900;
     private static String TITLE = "Hello window!";
 
-    // The window handle
+    // The window entityMoveHandler
     private static long window;
 
     public static void init() {

@@ -4,6 +4,7 @@ import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.DataDeserializer;
 import nl.sander758.common.network.DataSerializer;
 import nl.sander758.common.network.Packet;
+import nl.sander758.common.network.PacketListenerRegistry;
 import nl.sander758.common.network.packets.DisconnectPacket;
 import nl.sander758.common.network.packets.EntityMovePacket;
 
@@ -100,14 +101,15 @@ class SocketConnection implements Runnable {
 
                 switch (type) {
                     case ENTITY_MOVE_PACKET:
-                        //
-                        Logger.debug("Move packet received");
+                        EntityMovePacket entityMovePacket = new EntityMovePacket();
+                        entityMovePacket.deserialize(deserializer);
+                        PacketListenerRegistry.callListeners(type, entityMovePacket);
                         break;
                     case DISCONNECT_PACKET:
                         Logger.debug("Disconnect packet received");
-                        DisconnectPacket packet = new DisconnectPacket();
-                        packet.deserialize(deserializer);
-                        if (packet.shouldPingBack()) {
+                        DisconnectPacket disconnectPacket = new DisconnectPacket();
+                        disconnectPacket.deserialize(deserializer);
+                        if (disconnectPacket.shouldPingBack()) {
                             SocketClient.trySend(new DisconnectPacket(false));
                         }
                         close();

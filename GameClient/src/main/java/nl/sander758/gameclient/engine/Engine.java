@@ -1,5 +1,7 @@
 package nl.sander758.gameclient.engine;
 
+import nl.sander758.common.network.Packet;
+import nl.sander758.common.network.PacketListenerRegistry;
 import nl.sander758.gameclient.engine.display.Camera;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.entitySystem.EntityRenderer;
@@ -73,6 +75,7 @@ public class Engine {
         camera = new Camera(new Vector3f(0, 2, 0));
         InputManager.registerMouseInputListener(camera);
         InputManager.registerKeyboardInputListener(camera);
+        PacketListenerRegistry.register(Packet.PacketType.ENTITY_MOVE_PACKET, camera);
 
         light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 

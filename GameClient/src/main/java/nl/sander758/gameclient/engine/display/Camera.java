@@ -1,5 +1,8 @@
 package nl.sander758.gameclient.engine.display;
 
+import nl.sander758.common.logger.Logger;
+import nl.sander758.common.network.Packet;
+import nl.sander758.common.network.PacketListener;
 import nl.sander758.common.network.packets.EntityMovePacket;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
@@ -13,7 +16,7 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Camera implements MouseInputListener, KeyboardInputListener {
+public class Camera implements MouseInputListener, KeyboardInputListener, PacketListener {
 
     private static int
             KEY_UP = 0,
@@ -72,32 +75,34 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
 
         float currentSpeed = Timer.getDeltaTime() * speed;
 
+        Vector3f newPosition = new Vector3f();
         if (W_KEY_STATE == KEY_DOWN) {
-            position.x += newX * currentSpeed;
-            position.z -= newZ * currentSpeed;
+            newPosition.x += newX * currentSpeed;
+            newPosition.z -= newZ * currentSpeed;
         }
         if (S_KEY_STATE == KEY_DOWN) {
-            position.x -= newX * currentSpeed;
-            position.z += newZ * currentSpeed;
+            newPosition.x -= newX * currentSpeed;
+            newPosition.z += newZ * currentSpeed;
         }
         if (D_KEY_STATE == KEY_DOWN) {
-            position.x += newZ * currentSpeed;
-            position.z += newX * currentSpeed;
+            newPosition.x += newZ * currentSpeed;
+            newPosition.z += newX * currentSpeed;
         }
         if (A_KEY_STATE == KEY_DOWN) {
-            position.x -= newZ * currentSpeed;
-            position.z -= newX * currentSpeed;
+            newPosition.x -= newZ * currentSpeed;
+            newPosition.z -= newX * currentSpeed;
         }
 
         if (LEFT_SHIT_STATE == KEY_DOWN) {
-            position.y -= currentSpeed;
+            newPosition.y -= currentSpeed;
         }
         if (SPACE_STATE == KEY_DOWN) {
-            position.y += currentSpeed;
+            newPosition.y += currentSpeed;
         }
 
-        SocketClient.trySend(new EntityMovePacket(position));
-
+        if (newPosition.x != 0 || newPosition.y != 0 || newPosition.z != 0) {
+            SocketClient.trySend(new EntityMovePacket(newPosition));
+        }
 //        Terrain currentTerrain = null;
 //
 //        for (Terrain terrain : terrains) {
@@ -203,5 +208,17 @@ public class Camera implements MouseInputListener, KeyboardInputListener {
             case GLFW_KEY_SPACE:
                 SPACE_STATE = myAction;
         }
+    }
+
+    @Override
+    public void handle(Packet packet) {
+        if (packet.getId() != Packet.PacketType.ENTITY_MOVE_PACKET) {
+            return;
+        }
+        EntityMovePacket entityMovePacket = (EntityMovePacket) packet;
+        Vector3f newLocation = entityMovePacket.getLocation();
+        position.x += newLocation.x;
+        position.y += newLocation.y;
+        position.z += newLocation.z;
     }
 }

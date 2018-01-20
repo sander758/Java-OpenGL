@@ -78,7 +78,7 @@ public class ClientConnection implements Runnable {
                     case ENTITY_MOVE_PACKET:
                         EntityMovePacket movePacket = new EntityMovePacket();
                         movePacket.deserialize(deserializer);
-                        Logger.debug("Entity move received: " + movePacket.getLocation());
+                        trySend(movePacket);
                         break;
                     case DISCONNECT_PACKET:
                         Logger.debug("Disconnect packet received from client: " + clientId);
