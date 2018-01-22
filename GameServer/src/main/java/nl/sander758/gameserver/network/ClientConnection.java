@@ -61,10 +61,10 @@ public class ClientConnection implements Runnable {
         try {
             while (isRunning) {
                 int inputLength = input.readInt();
-                byte[] input = new byte[inputLength];
-                int readBytes = this.input.read(input);
+                byte[] inputData = new byte[inputLength];
+                int readBytes = input.read(inputData);
 
-                DataDeserializer deserializer = new DataDeserializer(input);
+                DataDeserializer deserializer = new DataDeserializer(inputData);
                 byte packetId = deserializer.readUnsignedByte();
 
                 Packet.PacketType type = Packet.PacketType.getById(packetId);

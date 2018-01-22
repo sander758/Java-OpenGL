@@ -9,37 +9,11 @@ import nl.sander758.common.network.packets.DisconnectPacket;
 import nl.sander758.common.network.packets.EntityMovePacket;
 
 import java.io.*;
-import java.net.Socket;
 
-class SocketConnection implements Runnable {
+class SocketListener extends SocketRunnable {
 
-    private String address;
-    private int port;
-
-    private boolean isRunning = true;
-
-    private Socket socket;
-    private DataInputStream input;
-    private DataOutputStream output;
-
-    private Thread listenThread;
-
-    public SocketConnection(String address, int port) throws IOException {
-        this.address = address;
-        this.port = port;
-    }
-
-    public void connect() throws IOException {
-        socket = new Socket(address, port);
-
-        InputStream inputStream = socket.getInputStream();
-        input = new DataInputStream(inputStream);
-
-        OutputStream outputStream = socket.getOutputStream();
-        output = new DataOutputStream(outputStream);
-
-        listenThread = new Thread(this);
-        listenThread.start();
+    public SocketListener(SocketClient client) {
+        super(client);
     }
 
     public void trySend(Packet packet) {
@@ -55,41 +29,19 @@ class SocketConnection implements Runnable {
             output.write(data);
             output.flush();
         } catch (IOException e) {
-            Logger.error(e, e.getMessage());
-        }
-    }
-
-    public boolean isAlive() {
-        return socket != null && !socket.isClosed();
-    }
-
-    private void close() {
-        try {
-            isRunning = false;
-            if (!isAlive()) {
-                socket.close();
-            }
-            if (input != null) {
-                input.close();
-            }
-            if (output != null) {
-                output.close();
-            }
-        } catch (IOException e) {
-            Logger.error(e.getMessage());
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
     @Override
     public void run() {
         try {
-            while (isRunning) {
+            while (client.isRunning()) {
                 int inputLength = input.readInt();
-                byte[] input = new byte[inputLength];
-                int readBytes = this.input.read(input);
+                byte[] inputData = new byte[inputLength];
+                int readBytes = input.read(inputData);
 
-                DataDeserializer deserializer = new DataDeserializer(input);
+                DataDeserializer deserializer = new DataDeserializer(inputData);
                 byte packetId = deserializer.readUnsignedByte();
 
                 Packet.PacketType type = Packet.PacketType.getById(packetId);
@@ -110,14 +62,14 @@ class SocketConnection implements Runnable {
                         DisconnectPacket disconnectPacket = new DisconnectPacket();
                         disconnectPacket.deserialize(deserializer);
                         if (disconnectPacket.shouldPingBack()) {
-                            SocketClient.trySend(new DisconnectPacket(false));
+                            client.trySend(new DisconnectPacket(false));
                         }
-                        close();
+                        client.close();
                         break;
                 }
             }
         } catch (IOException e) {
-            Logger.error(e, e.getMessage());
+            Logger.error(e);
         }
     }
 }

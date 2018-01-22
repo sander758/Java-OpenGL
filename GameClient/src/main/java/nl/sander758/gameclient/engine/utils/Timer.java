@@ -29,7 +29,7 @@ public class Timer {
     }
 
     /**
-     * @return time in milliseconds
+     * @return time in microseconds
      */
     private static long getCurrentTime() {
         return System.nanoTime() / 1000;

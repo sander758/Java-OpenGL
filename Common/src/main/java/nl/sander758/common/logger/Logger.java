@@ -27,6 +27,7 @@ public class Logger {
     }
 
     public static void error(Exception e, String... messages) {
+        System.out.println("[Error] " + e.getMessage());
         for (String message : messages) {
             System.out.println("[Error] " + message);
         }

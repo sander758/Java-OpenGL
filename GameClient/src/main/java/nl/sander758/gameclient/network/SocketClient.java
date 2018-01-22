@@ -5,40 +5,102 @@ import nl.sander758.common.network.Packet;
 import nl.sander758.common.network.packets.DisconnectPacket;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.channels.NotYetConnectedException;
 
 public class SocketClient {
 
-    private static final String SERVER_ADDRESS = "127.0.0.1";
-    private static final int PORT = 9000;
+    private static SocketClient client = new SocketClient();
 
-    private static SocketConnection connection;
+    private final String address;
+    private final int port;
 
-    public static void connect() {
+    private SocketListener socketListener;
+    private SocketUpdater socketUpdater;
+
+    private Socket socket;
+    private boolean isRunning;
+
+
+    private SocketClient() {
+        this.address = "127.0.0.1";
+        this.port = 9000;
+    }
+
+    public static SocketClient getClient() {
+        return client;
+    }
+
+    public void connect() {
         try {
-            if (connection != null) {
+            if (socketListener != null) {
                 Logger.error("Connection instance already exists");
                 return;
             }
-            connection = new SocketConnection(SERVER_ADDRESS, PORT);
-            connection.connect();
+            socket = new Socket(address, port);
+            isRunning = true;
+
+            socketListener = new SocketListener(this);
+            socketListener.start();
+
+            socketUpdater = new SocketUpdater(this);
+            socketUpdater.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void trySend(Packet packet) {
-        if (connection == null) {
-            Logger.debug("No active socket connection");
+    public Socket getSocket() {
+        if (socket == null) {
+            throw new NotYetConnectedException();
+        }
+        return socket;
+    }
+
+    public void trySend(Packet packet) {
+        if (socketListener == null) {
+            Logger.debug("No active socket socketListener");
             return;
         }
-        if (!connection.isAlive()) {
+        if (!isAlive()) {
             Logger.error("Socket connection is not alive anymore");
             return;
         }
-        connection.trySend(packet);
+        socketListener.trySend(packet);
     }
 
-    public static void disconnect() {
+    public boolean isAlive() {
+        return socket != null && !socket.isClosed();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void close() {
+        try {
+            isRunning = false;
+
+            InputStream inputStream = socket.getInputStream();
+            OutputStream outputStream = socket.getOutputStream();
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
+            if (!isAlive()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            Logger.error(e);
+        }
+    }
+
+    public void disconnect() {
         trySend(new DisconnectPacket(true));
     }
 }

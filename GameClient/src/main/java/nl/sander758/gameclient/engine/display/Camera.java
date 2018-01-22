@@ -101,7 +101,7 @@ public class Camera implements MouseInputListener, KeyboardInputListener, Packet
         }
 
         if (newPosition.x != 0 || newPosition.y != 0 || newPosition.z != 0) {
-            SocketClient.trySend(new EntityMovePacket(newPosition));
+            SocketClient.getClient().trySend(new EntityMovePacket(newPosition));
         }
 //        Terrain currentTerrain = null;
 //
