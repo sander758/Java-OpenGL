@@ -1,6 +1,6 @@
 package nl.sander758.gameclient.engine.shadowSystem;
 
-import nl.sander758.gameclient.engine.display.Camera;
+import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.entitySystem.GraphicalEntity;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;

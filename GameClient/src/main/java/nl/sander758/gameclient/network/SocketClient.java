@@ -1,8 +1,9 @@
 package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
-import nl.sander758.common.network.Packet;
-import nl.sander758.common.network.packets.DisconnectPacket;
+import nl.sander758.common.network.PacketOut;
+import nl.sander758.common.network.packets.DisconnectPacketIn;
+import nl.sander758.common.network.packets.DisconnectPacketOut;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,8 +61,8 @@ public class SocketClient {
         return socket;
     }
 
-    public void trySend(Packet packet) {
-        if (socketListener == null) {
+    public void trySend(PacketOut packet) {
+        if (socket == null) {
             Logger.debug("No active socket socketListener");
             return;
         }
@@ -101,6 +102,6 @@ public class SocketClient {
     }
 
     public void disconnect() {
-        trySend(new DisconnectPacket(true));
+        trySend(new DisconnectPacketOut(true));
     }
 }

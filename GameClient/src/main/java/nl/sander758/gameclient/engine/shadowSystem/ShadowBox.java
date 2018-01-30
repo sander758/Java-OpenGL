@@ -1,7 +1,7 @@
 package nl.sander758.gameclient.engine.shadowSystem;
 
 
-import nl.sander758.gameclient.engine.display.Camera;
+import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.utils.Maths;
 import org.joml.Matrix4f;
@@ -74,8 +74,8 @@ public class ShadowBox {
 		toFar.mul(SHADOW_DISTANCE);
 		Vector3f toNear = new Vector3f(forwardVector);
 		toNear.mul(Maths.NEAR_PLANE);
-		Vector3f centerNear = toNear.add(cam.getPosition(), new Vector3f());
-		Vector3f centerFar = toFar.add(cam.getPosition(), new Vector3f());
+		Vector3f centerNear = toNear.add(cam.getLocation(), new Vector3f());
+		Vector3f centerFar = toFar.add(cam.getLocation(), new Vector3f());
 
 		Vector4f[] points = calculateFrustumVertices(rotation, forwardVector, centerNear,
 				centerFar);

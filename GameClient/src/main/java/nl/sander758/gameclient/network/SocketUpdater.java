@@ -1,35 +1,34 @@
 package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
+import nl.sander758.common.network.SocketRunnable;
+import nl.sander758.gameclient.network.packets.PlayerMovePacketOut;
+import nl.sander758.gameclient.engine.player.PlayerHandler;
 
 public class SocketUpdater extends SocketRunnable {
 
-    private static int TICKS_PER_SECOND = 2;
+    private static int TICKS_PER_SECOND = 20;
+    private PlayerHandler playerHandler = PlayerHandler.getHandler();
+
+    private SocketClient client;
 
     public SocketUpdater(SocketClient client) {
-        super(client);
+        super(client.getSocket());
+        this.client = client;
     }
 
     @Override
     public void run() {
         float secondsPerUpdate = 1f / TICKS_PER_SECOND;
-        long previous = getTime();
-        float steps = 0.0f;
         Logger.info("Seconds per update: " + secondsPerUpdate);
 
         while (client.isRunning()) {
             long startTime = getTime();
-            float elapsedSeconds = (startTime - previous) / 1000f;
-            previous = startTime;
-            steps += elapsedSeconds;
-            Logger.info("Steps: " + steps);
 
-//            while (steps >= secondsPerUpdate) {
-//                Logger.debug("update game state: " + getTime());
-//                steps -= secondsPerUpdate;
-//            }
-
-            Logger.debug("render: " + getTime());
+            Logger.debug("update game state: " + getTime());
+            if (playerHandler.getPlayer() != null) {
+                trySend(new PlayerMovePacketOut(playerHandler.getPlayer().getCamera().getNewLocation()));
+            }
 
             sync(startTime);
         }
@@ -49,6 +48,5 @@ public class SocketUpdater extends SocketRunnable {
                 e.printStackTrace();
             }
         }
-
     }
 }

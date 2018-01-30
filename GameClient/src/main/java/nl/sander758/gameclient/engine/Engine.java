@@ -1,8 +1,5 @@
 package nl.sander758.gameclient.engine;
 
-import nl.sander758.common.network.Packet;
-import nl.sander758.common.network.PacketListenerRegistry;
-import nl.sander758.gameclient.engine.display.Camera;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.entitySystem.EntityRenderer;
 import nl.sander758.gameclient.engine.entitySystem.GraphicalEntity;
@@ -15,6 +12,8 @@ import nl.sander758.gameclient.engine.guiSystem.GuiTexture;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.loader.Model;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
+import nl.sander758.gameclient.engine.player.Player;
+import nl.sander758.gameclient.engine.player.PlayerHandler;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.shadowSystem.ShadowMapMasterRenderer;
 import nl.sander758.gameclient.engine.terrainSystem.Terrain;
@@ -46,7 +45,7 @@ public class Engine {
     private Fbo reflectionFbo;
     private Fbo refractionFbo;
 
-    private Camera camera;
+    private Player player;
     private Light light;
 
     private ShadowMapMasterRenderer shadowMapMasterRenderer;
@@ -72,15 +71,12 @@ public class Engine {
         reflectionFbo = createWaterFbo(displayWidth, displayHeight, false);
         refractionFbo = createWaterFbo(displayWidth / 2, displayHeight / 2, true);
 
-        camera = new Camera(new Vector3f(0, 2, 0));
-        InputManager.registerMouseInputListener(camera);
-        InputManager.registerKeyboardInputListener(camera);
-        PacketListenerRegistry.register(Packet.PacketType.ENTITY_MOVE_PACKET, camera);
+        player = PlayerHandler.getHandler().createPlayer().getPlayer();
 
         light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 
         Matrix4f projectionMatrix = Maths.createProjectionMatrix();
-        shadowMapMasterRenderer = new ShadowMapMasterRenderer(camera);
+        shadowMapMasterRenderer = new ShadowMapMasterRenderer(player.getCamera());
         entityRenderer = new EntityRenderer(projectionMatrix);
         terrainRenderer = new TerrainRenderer(projectionMatrix, shadowMapMasterRenderer.getShadowDistance(), shadowMapMasterRenderer.getShadowMapSize());
         waterRenderer = new WaterRenderer(projectionMatrix);
@@ -121,7 +117,7 @@ public class Engine {
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(WindowManager.getWindow()) ) {
-            camera.move(terrains);
+            player.getCamera().update();
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
             doReflectionRender(new Vector4f(0, 1, 0, -WaterTile.WATER_HEIGHT + WaterTile.REFLECT_OFFSET));
@@ -149,22 +145,22 @@ public class Engine {
 
     private void doReflectionRender(Vector4f clipPlane) {
         reflectionFbo.bindForRender(0);
-        float distance = 2 * (camera.getPosition().y - WaterTile.WATER_HEIGHT);
-        camera.getPosition().y -= distance;
-        camera.invertPitch();
+        float distance = 2 * (player.getPosition().y - WaterTile.WATER_HEIGHT);
+        player.getPosition().y -= distance;
+        player.getCamera().invertPitch();
         prepareRender();
-        entityRenderer.render(entities, camera, light, clipPlane);
-        terrainRenderer.render(terrains, camera, light, clipPlane, new Matrix4f(), false);
-        camera.invertPitch();
-        camera.getPosition().y += distance;
+        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
+        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
+        player.getCamera().invertPitch();
+        player.getPosition().y += distance;
         reflectionFbo.unbindAfterRender();
     }
 
     private void doRefractionRender(Vector4f clipPlane) {
         refractionFbo.bindForRender(0);
         prepareRender();
-        entityRenderer.render(entities, camera, light, clipPlane);
-        terrainRenderer.render(terrains, camera, light, clipPlane, new Matrix4f(), false);
+        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
+        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
         refractionFbo.unbindAfterRender();
     }
 
@@ -173,12 +169,12 @@ public class Engine {
 
 //        shadowMapMasterRenderer.render(entities, light.getLightDirection());
 
-        entityRenderer.render(entities, camera, light, clipPlane);
+        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
         terrainRenderer.bindTextures(shadowMapMasterRenderer.getShadowMap());
-        terrainRenderer.render(terrains, camera, light, clipPlane, new Matrix4f(), false);
+        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
 
         waterRenderer.bindTextures(reflectionFbo.getColourBuffer(0), refractionFbo.getColourBuffer(0), refractionFbo.getDepthBuffer());
-        waterRenderer.render(waterTiles, camera, light);
+        waterRenderer.render(waterTiles, player.getCamera(), light);
         guiRenderer.render(guiTextures);
     }
 
@@ -205,5 +201,4 @@ public class Engine {
         }
         return Fbo.newFbo(width, height).addColourAttachment(0, colourAttach).addDepthAttachment(depthAttach).init();
     }
-
 }

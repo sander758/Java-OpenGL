@@ -1,6 +1,6 @@
 package nl.sander758.gameclient.engine.waterSystem;
 
-import nl.sander758.gameclient.engine.display.Camera;
+import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;
 import nl.sander758.gameclient.engine.utils.OpenGlUtils;
@@ -41,7 +41,7 @@ public class WaterRenderer {
         Matrix4f viewMatrix = Maths.createViewMatrix(camera);
         shader.start();
         shader.viewMatrix.loadUniform(viewMatrix);
-        shader.cameraPos.loadUniform(camera.getPosition());
+        shader.cameraPos.loadUniform(camera.getLocation());
         shader.lightDirection.loadUniform(light.getLightDirection());
         shader.lightColor.loadUniform(light.getLightColor());
         shader.lightBias.loadUniform(light.getBias());

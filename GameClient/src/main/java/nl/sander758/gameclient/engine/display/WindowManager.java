@@ -63,7 +63,7 @@ public class WindowManager {
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
         // Enable or disable v-sync
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
 
         // Make the window visible
         glfwShowWindow(window);

@@ -18,11 +18,11 @@ public class GameClient implements Runnable {
 
         registerModels();
 
-        SocketClient.getClient().connect();
+//        SocketClient.getClient().connect();
 
         engine.start();
 
-        SocketClient.getClient().disconnect();
+//        SocketClient.getClient().disconnect();
     }
 
     private void registerModels() {

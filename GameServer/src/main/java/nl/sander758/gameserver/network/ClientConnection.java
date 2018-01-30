@@ -1,65 +1,38 @@
 package nl.sander758.gameserver.network;
 
 import nl.sander758.common.logger.Logger;
-import nl.sander758.common.network.DataDeserializer;
-import nl.sander758.common.network.DataSerializer;
-import nl.sander758.common.network.Packet;
-import nl.sander758.common.network.packets.DisconnectPacket;
-import nl.sander758.common.network.packets.EntityMovePacket;
+import nl.sander758.common.network.*;
+import nl.sander758.common.network.packets.DisconnectPacketIn;
+import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.gameserver.player.Player;
+import nl.sander758.gameserver.player.PlayerHandler;
+import nl.sander758.gameserver.network.packets.PlayerMovePacketIn;
 
 import java.io.*;
 import java.net.Socket;
 
-public class ClientConnection implements Runnable {
+public class ClientConnection extends SocketRunnable {
 
     private int clientId;
-    private Socket socket;
     private SocketServer server;
-
-    private DataInputStream input;
-    private DataOutputStream output;
 
     private boolean isRunning = true;
 
+    private Player player;
+
     public ClientConnection(int clientId, Socket socket, SocketServer server) {
+        super(socket);
         this.clientId = clientId;
-        this.socket = socket;
         this.server = server;
 
-        try {
-            InputStream inputStream = socket.getInputStream();
-            input = new DataInputStream(inputStream);
-
-            OutputStream outputStream = socket.getOutputStream();
-            output = new DataOutputStream(outputStream);
-        } catch (IOException e) {
-            Logger.error(e.getMessage());
-            e.printStackTrace();
-            isRunning = false;
-        }
-    }
-
-    public void trySend(Packet packet) {
-        DataSerializer dataSerializer = new DataSerializer();
-        Packet.PacketType packetType = packet.getId();
-        dataSerializer.writeUnsignedByte(packetType.getId());
-
-        packet.serialize(dataSerializer);
-        byte[] data = dataSerializer.toByteArray();
-
-        try {
-            output.writeInt(data.length);
-            output.write(data);
-            output.flush();
-        } catch (IOException e) {
-            Logger.error(e);
-        }
+        player = new Player(clientId);
+        PlayerHandler.getPlayerHandler().addPlayer(player);
     }
 
     @Override
     public void run() {
         try {
-            while (isRunning) {
+            while (server.isRunning() && isRunning) {
                 int inputLength = input.readInt();
                 byte[] inputData = new byte[inputLength];
                 int readBytes = input.read(inputData);
@@ -67,27 +40,27 @@ public class ClientConnection implements Runnable {
                 DataDeserializer deserializer = new DataDeserializer(inputData);
                 byte packetId = deserializer.readUnsignedByte();
 
-                Packet.PacketType type = Packet.PacketType.getById(packetId);
+                PacketType type = PacketType.getById(packetId);
 
                 if (type == null) {
-                    Logger.error("Invalid packed received from client: " + packetId);
+                    Logger.error("Invalid packed received from socket: " + packetId);
                     continue;
                 }
 
                 switch (type) {
-                    case ENTITY_MOVE_PACKET:
-                        EntityMovePacket movePacket = new EntityMovePacket();
-                        movePacket.deserialize(deserializer);
-                        trySend(movePacket);
+                    case PLAYER_MOVE_PACKET:
+                        PlayerMovePacketIn playerMovePacketIn = new PlayerMovePacketIn();
+                        playerMovePacketIn.deserialize(deserializer);
+                        player.setPosition(playerMovePacketIn.getLocation());
                         break;
                     case DISCONNECT_PACKET:
-                        Logger.debug("Disconnect packet received from client: " + clientId);
-                        DisconnectPacket disconnectPacket = new DisconnectPacket();
+                        Logger.debug("Disconnect packet received from socket: " + clientId);
+                        DisconnectPacketIn disconnectPacket = new DisconnectPacketIn();
                         disconnectPacket.deserialize(deserializer);
                         if (disconnectPacket.shouldPingBack()) {
-                            trySend(new DisconnectPacket(false));
+                            trySend(new DisconnectPacketOut(false));
                         }
-                        server.removeClient(clientId, "Disconnect requested from client");
+                        server.removeClient(clientId, "Disconnect requested from socket");
                         break;
                 }
             }

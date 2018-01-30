@@ -1,6 +1,6 @@
 package nl.sander758.gameclient.engine.terrainSystem;
 
-import nl.sander758.gameclient.engine.display.Camera;
+import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;

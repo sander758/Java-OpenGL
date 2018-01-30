@@ -1,6 +1,6 @@
 package nl.sander758.gameclient.engine.utils;
 
-import nl.sander758.gameclient.engine.display.Camera;
+import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -33,7 +33,7 @@ public class Maths {
         viewMatrix.identity();
         viewMatrix.rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1, 0, 0));
         viewMatrix.rotate((float) Math.toRadians(camera.getYaw()), new Vector3f(0, 1, 0));
-        Vector3f cameraPos = camera.getPosition();
+        Vector3f cameraPos = camera.getLocation();
         Vector3f negativeCameraPos = new Vector3f(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         viewMatrix.translate(negativeCameraPos);
         return viewMatrix;

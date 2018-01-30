@@ -1,5 +1,7 @@
 package nl.sander758.common.network;
 
+import org.joml.Vector3f;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -34,6 +36,16 @@ public class DataSerializer {
     public void writeFloat(float value) {
         try {
             output.writeFloat(value);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public void writeVector3f(Vector3f vector) {
+        try {
+            output.writeFloat(vector.x);
+            output.writeFloat(vector.y);
+            output.writeFloat(vector.z);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

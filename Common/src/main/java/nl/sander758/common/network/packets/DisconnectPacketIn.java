@@ -1,25 +1,12 @@
 package nl.sander758.common.network.packets;
 
 import nl.sander758.common.network.DataDeserializer;
-import nl.sander758.common.network.DataSerializer;
-import nl.sander758.common.network.Packet;
+import nl.sander758.common.network.PacketIn;
+import nl.sander758.common.network.PacketType;
 
-public class DisconnectPacket extends Packet {
+public class DisconnectPacketIn extends PacketIn {
 
     private boolean shouldPingBack;
-
-    public DisconnectPacket() {
-        super();
-    }
-
-    public DisconnectPacket(boolean shouldPingBack) {
-        this.shouldPingBack = shouldPingBack;
-    }
-
-    @Override
-    public void serialize(DataSerializer serializer) {
-        serializer.writeBoolean(shouldPingBack);
-    }
 
     @Override
     public void deserialize(DataDeserializer deserializer) {

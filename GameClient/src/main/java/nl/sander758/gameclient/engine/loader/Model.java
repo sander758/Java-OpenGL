@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+// TODO update this class
 public class Model {
 
     private Mesh mesh;
@@ -52,7 +53,6 @@ public class Model {
     }
 
     private void loadModel() throws IOException {
-        // TODO update this code
         InputStream inputStream = loader.getResourceAsStream(modelPath);
 
         if (inputStream == null) {

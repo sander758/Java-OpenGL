@@ -1,6 +1,7 @@
 package nl.sander758.gameserver.network;
 
 import nl.sander758.common.logger.Logger;
+import nl.sander758.gameserver.player.PlayerHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,8 +15,13 @@ public class SocketServer implements Runnable {
     private int clientCount = 0;
     private HashMap<Integer, ClientConnection> connections = new HashMap<>();
 
+    private boolean isRunning = true;
+
     public SocketServer(int port) {
         this.port = port;
+
+        SocketUpdater socketUpdater = new SocketUpdater(this);
+        new Thread(socketUpdater).start();
     }
 
     @Override
@@ -24,14 +30,22 @@ public class SocketServer implements Runnable {
             Logger.info("Starting server at port: " + port);
             ServerSocket server = new ServerSocket(port);
 
-            while (true) {
-                Logger.info("Waiting for next client");
+            while (isRunning) {
+                Logger.info("Waiting for next socket");
                 addClient(server.accept());
             }
         } catch (IOException e) {
             Logger.error(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public HashMap<Integer, ClientConnection> getConnections() {
+        return connections;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public void removeClient(int clientId, String reason) {
@@ -42,13 +56,14 @@ public class SocketServer implements Runnable {
         Logger.debug("Client: " + clientId + " disconnected with reason: " + reason);
         ClientConnection connection = connections.get(clientId);
         connection.close();
+        PlayerHandler.getPlayerHandler().removePlayer(clientId);
     }
 
     private void addClient(Socket socket) {
         int clientId = clientCount;
         clientCount++;
 
-        Logger.info("Adding new client with id: " + clientId);
+        Logger.info("Adding new socket with id: " + clientId);
         ClientConnection client = new ClientConnection(clientId, socket, this);
         new Thread(client).start();
         connections.put(clientId, client);
