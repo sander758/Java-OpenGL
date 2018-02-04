@@ -1,7 +1,7 @@
 package nl.sander758.gameclient.engine.loader;
 
 public enum VBOType {
-    DATA_FLOAT,
-    DATA_BYTE,
+    FLOAT_DATA,
+    BYTE_DATA,
     INDICES_DATA
 }

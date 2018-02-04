@@ -1,13 +1,14 @@
 package nl.sander758.gameclient.engine.waterSystem;
 
+import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.player.Camera;
+import nl.sander758.gameclient.engine.player.PlayablePlayer;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;
 import nl.sander758.gameclient.engine.utils.OpenGlUtils;
 import nl.sander758.gameclient.engine.utils.Timer;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -15,6 +16,11 @@ import org.lwjgl.opengl.GL30;
 import java.util.List;
 
 public class WaterRenderer {
+    public static final float WATER_HEIGHT = -0.5f;
+    public static final float WAVE_SPEED = 0.14f;
+
+    public static final float REFRACT_OFFSET = 1f;
+    public static final float REFLECT_OFFSET = 0.1f;
 
     private WaterShader shader = new WaterShader();
     private float time = 0;
@@ -22,7 +28,7 @@ public class WaterRenderer {
     public WaterRenderer(Matrix4f projectionMatrix) {
         shader.start();
         shader.projectionMatrix.loadUniform(projectionMatrix);
-        shader.height.loadUniform(WaterTile.WATER_HEIGHT);
+        shader.height.loadUniform(WATER_HEIGHT);
         shader.connectTextureUnits();
         shader.nearFarPlanes.loadUniform(new Vector2f(Maths.NEAR_PLANE, Maths.FAR_PLANE));
         shader.stop();
@@ -34,34 +40,33 @@ public class WaterRenderer {
         shader.depthTexture.bindTexture(refractionDepth);
     }
 
-    public void render(List<WaterTile> waterTiles, Camera camera, Light light) {
+    public void render(PlayablePlayer player, Light light) {
         OpenGlUtils.enableAlphaBlending();
         OpenGlUtils.cullBackFaces(false);
 
-        Matrix4f viewMatrix = Maths.createViewMatrix(camera);
         shader.start();
-        shader.viewMatrix.loadUniform(viewMatrix);
-        shader.cameraPos.loadUniform(camera.getLocation());
+        shader.viewMatrix.loadUniform(player.getViewMatrix());
+        shader.cameraPos.loadUniform(player.getLocation());
         shader.lightDirection.loadUniform(light.getLightDirection());
         shader.lightColor.loadUniform(light.getLightColor());
         shader.lightBias.loadUniform(light.getBias());
         updateTime();
         shader.waveTime.loadUniform(time);
 
-        for (WaterTile waterTile : waterTiles) {
-            waterTile.getMesh().bindVAO();
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glEnableVertexAttribArray(1);
+        for (WaterEntity waterEntity : WaterEntityRegistry.getEntities()) {
+            if (waterEntity.getModel() == null) {
+                continue;
+            }
 
-            Matrix4f transformationMatrix = Maths.createTransformationMatrix(new Vector3f(waterTile.getPosition().x, WaterTile.WATER_HEIGHT, waterTile.getPosition().y), new Vector3f(0, 0, 0), waterTile.getScale());
-            shader.transformationMatrix.loadUniform(transformationMatrix);
+            shader.transformationMatrix.loadUniform(waterEntity.getTransformationMatrix());
+            for (Mesh mesh : waterEntity.getModel().getMeshes()) {
+                mesh.prepareRender();
 
-            GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, waterTile.getMesh().getVertexCount());
+                GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, mesh.getVertexCount());
 
-            GL20.glDisableVertexAttribArray(0);
-            GL20.glDisableVertexAttribArray(1);
+                mesh.endRender();
+            }
         }
-        GL30.glBindVertexArray(0);
 
         shader.stop();
 
@@ -74,6 +79,6 @@ public class WaterRenderer {
     }
 
     private void updateTime() {
-        time += WaterTile.WAVE_SPEED * Timer.getDeltaTime();
+        time += WAVE_SPEED * Timer.getDeltaTime();
     }
 }

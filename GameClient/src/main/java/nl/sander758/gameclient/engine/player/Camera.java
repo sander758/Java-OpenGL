@@ -1,18 +1,11 @@
 package nl.sander758.gameclient.engine.player;
 
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public interface Camera {
+    void updateViewMatrix(Vector3f location, float yaw, float pitch);
 
-    public Vector3f getLocation();
-
-    public Vector3f getNewLocation();
-
-    public float getPitch();
-
-    public void invertPitch();
-
-    public float getYaw();
-
-    public void update();
+    Matrix4f getViewMatrix();
 }

@@ -1,11 +1,9 @@
 package nl.sander758.gameclient.client;
 
-import nl.sander758.gameclient.client.models.Riverland;
-import nl.sander758.gameclient.client.models.SimpleTree;
-import nl.sander758.gameclient.client.models.Velociraptor;
 import nl.sander758.gameclient.engine.Engine;
+import nl.sander758.gameclient.engine.loader.fileModel.FileModel;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
-import nl.sander758.gameclient.network.SocketClient;
+import nl.sander758.gameclient.engine.waterSystem.WaterModel;
 
 public class GameClient implements Runnable {
 
@@ -26,8 +24,10 @@ public class GameClient implements Runnable {
     }
 
     private void registerModels() {
-        ModelRegistry.register("velociraptor", new Velociraptor());
-        ModelRegistry.register("simple_tree", new SimpleTree());
-        ModelRegistry.register("riverland", new Riverland());
+        ModelRegistry.register("velociraptor", new FileModel("models/lp_velociraptor/lp_velociraptor.obj"));
+        ModelRegistry.register("simple_tree", new FileModel("models/simpletree/simpletree.obj"));
+        ModelRegistry.register("riverland", new FileModel("models/riverland/riverland.obj"));
+        ModelRegistry.register("player", new FileModel("models/player/player.obj"));
+        ModelRegistry.register("water_16", new WaterModel(16));
     }
 }

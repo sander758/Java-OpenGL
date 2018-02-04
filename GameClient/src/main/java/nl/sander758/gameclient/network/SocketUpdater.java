@@ -3,12 +3,11 @@ package nl.sander758.gameclient.network;
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.SocketRunnable;
 import nl.sander758.gameclient.network.packets.PlayerMovePacketOut;
-import nl.sander758.gameclient.engine.player.PlayerHandler;
 
 public class SocketUpdater extends SocketRunnable {
 
     private static int TICKS_PER_SECOND = 20;
-    private PlayerHandler playerHandler = PlayerHandler.getHandler();
+//    private PlayerHandler playerHandler = PlayerHandler.getHandler();
 
     private SocketClient client;
 
@@ -26,9 +25,9 @@ public class SocketUpdater extends SocketRunnable {
             long startTime = getTime();
 
             Logger.debug("update game state: " + getTime());
-            if (playerHandler.getPlayer() != null) {
-                trySend(new PlayerMovePacketOut(playerHandler.getPlayer().getCamera().getNewLocation()));
-            }
+//            if (playerHandler.getPlayer() != null) {
+//                trySend(new PlayerMovePacketOut(playerHandler.getPlayer().getCamera().getNewLocation()));
+//            }
 
             sync(startTime);
         }

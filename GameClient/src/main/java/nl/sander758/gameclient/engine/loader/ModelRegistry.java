@@ -1,5 +1,7 @@
 package nl.sander758.gameclient.engine.loader;
 
+import nl.sander758.common.logger.Logger;
+
 import java.util.HashMap;
 
 public class ModelRegistry {
@@ -10,10 +12,24 @@ public class ModelRegistry {
             System.out.println("Model name already exists");
             return;
         }
-        modelHashMap.put(name, model);
+        try {
+            model.load();
+            modelHashMap.put(name, model);
+        } catch (ModelLoadingException e) {
+            Logger.error(e);
+        }
     }
 
-    public static Model getModel(String name) {
+    public static Model getModel(String name) throws ModelNotFoundException {
+        if (!modelHashMap.containsKey(name)) {
+            throw new ModelNotFoundException("Model: " + name + " not found in model registry");
+        }
         return modelHashMap.get(name);
+    }
+
+    public static void cleanUp() {
+        for (Model model : modelHashMap.values()) {
+            model.cleanUp();
+        }
     }
 }

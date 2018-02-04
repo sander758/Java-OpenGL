@@ -1,7 +1,9 @@
 package nl.sander758.gameclient.engine.terrainSystem;
 
+import nl.sander758.gameclient.engine.entitySystem.entities.TerrainEntity;
 import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.loader.Mesh;
+import nl.sander758.gameclient.engine.player.PlayablePlayer;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;
 import org.joml.Matrix4f;
@@ -29,31 +31,33 @@ public class TerrainRenderer {
         shader.shadowMap.bindTexture(shadowMap);
     }
 
-    public void render(List<Terrain> terrains, Camera camera, Light light, Vector4f clipPlane, Matrix4f shadowMapSpaceMatrix, boolean doShadow) {
-        Matrix4f viewMatrix = Maths.createViewMatrix(camera);
+    public void render(PlayablePlayer player, Light light, Vector4f clipPlane, Matrix4f shadowMapSpaceMatrix, boolean doShadow) {
         shader.start();
-        shader.viewMatrix.loadUniform(viewMatrix);
+        shader.viewMatrix.loadUniform(player.getViewMatrix());
         shader.lightDirection.loadUniform(light.getLightDirection());
         shader.lightColor.loadUniform(light.getLightColor());
         shader.clipPlane.loadUniform(clipPlane);
         shader.toShadowMapSpaceMatrix.loadUniform(shadowMapSpaceMatrix);
         shader.doShadow.loadUniform(doShadow);
 
-        for (Terrain terrain : terrains) {
-            Mesh mesh = terrain.getModel().getMesh();
-            mesh.bindVAO();
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glEnableVertexAttribArray(1);
-            GL20.glEnableVertexAttribArray(2);
+        for (TerrainEntity terrainEntity : TerrainEntityRegistry.getEntities()) {
+            if (terrainEntity.getModel() == null) {
+                continue;
+            }
 
-            Matrix4f transformationMatrix = Maths.createTransformationMatrix(terrain.getLocation(), terrain.getRotation(), terrain.getScale());
-            shader.transformationMatrix.loadUniform(transformationMatrix);
+            shader.transformationMatrix.loadUniform(terrainEntity.getTransformationMatrix());
+            for (Mesh mesh : terrainEntity.getModel().getMeshes()) {
+                mesh.bindVAO();
+                GL20.glEnableVertexAttribArray(0);
+                GL20.glEnableVertexAttribArray(1);
+                GL20.glEnableVertexAttribArray(2);
 
-            GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-            GL20.glDisableVertexAttribArray(0);
-            GL20.glDisableVertexAttribArray(1);
-            GL20.glDisableVertexAttribArray(2);
+                GL20.glDisableVertexAttribArray(0);
+                GL20.glDisableVertexAttribArray(1);
+                GL20.glDisableVertexAttribArray(2);
+            }
         }
         GL30.glBindVertexArray(0);
 

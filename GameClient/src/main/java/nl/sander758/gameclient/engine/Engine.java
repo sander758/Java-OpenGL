@@ -1,28 +1,29 @@
 package nl.sander758.gameclient.engine;
 
+import nl.sander758.gameclient.client.entities.fixed.SimpleTree;
+import nl.sander758.gameclient.client.entities.fixed.Velociraptor;
+import nl.sander758.gameclient.client.entities.terrain.RiverlandEntity;
 import nl.sander758.gameclient.engine.display.WindowManager;
-import nl.sander758.gameclient.engine.entitySystem.EntityRenderer;
-import nl.sander758.gameclient.engine.entitySystem.GraphicalEntity;
+import nl.sander758.gameclient.engine.entitySystem.FixedEntityRegistry;
+import nl.sander758.gameclient.engine.entitySystem.FixedEntityRenderer;
 import nl.sander758.gameclient.engine.fbos.Attachment;
 import nl.sander758.gameclient.engine.fbos.Fbo;
 import nl.sander758.gameclient.engine.fbos.RenderBufferAttachment;
 import nl.sander758.gameclient.engine.fbos.TextureAttachment;
 import nl.sander758.gameclient.engine.guiSystem.GuiRenderer;
-import nl.sander758.gameclient.engine.guiSystem.GuiTexture;
 import nl.sander758.gameclient.engine.input.InputManager;
-import nl.sander758.gameclient.engine.loader.Model;
+import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
-import nl.sander758.gameclient.engine.player.Player;
-import nl.sander758.gameclient.engine.player.PlayerHandler;
+import nl.sander758.gameclient.engine.player.PlayablePlayer;
 import nl.sander758.gameclient.engine.scene.Light;
-import nl.sander758.gameclient.engine.shadowSystem.ShadowMapMasterRenderer;
-import nl.sander758.gameclient.engine.terrainSystem.Terrain;
+import nl.sander758.gameclient.engine.terrainSystem.TerrainEntityRegistry;
 import nl.sander758.gameclient.engine.terrainSystem.TerrainRenderer;
 import nl.sander758.gameclient.engine.utils.Maths;
 import nl.sander758.gameclient.engine.utils.OpenGlUtils;
 import nl.sander758.gameclient.engine.utils.Timer;
+import nl.sander758.gameclient.engine.waterSystem.WaterEntity;
+import nl.sander758.gameclient.engine.waterSystem.WaterEntityRegistry;
 import nl.sander758.gameclient.engine.waterSystem.WaterRenderer;
-import nl.sander758.gameclient.engine.waterSystem.WaterTile;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -31,9 +32,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -45,19 +43,13 @@ public class Engine {
     private Fbo reflectionFbo;
     private Fbo refractionFbo;
 
-    private Player player;
+    private PlayablePlayer player;
     private Light light;
 
-    private ShadowMapMasterRenderer shadowMapMasterRenderer;
-    private EntityRenderer entityRenderer;
+    private FixedEntityRenderer entityRenderer;
     private TerrainRenderer terrainRenderer;
     private WaterRenderer waterRenderer;
     private GuiRenderer guiRenderer;
-
-    private List<GraphicalEntity> entities = new ArrayList<>();
-    private List<Terrain> terrains = new ArrayList<>();
-    private List<WaterTile> waterTiles = new ArrayList<>();
-    private List<GuiTexture> guiTextures = new ArrayList<>();
 
     public void init() {
         WindowManager.init();
@@ -71,14 +63,25 @@ public class Engine {
         reflectionFbo = createWaterFbo(displayWidth, displayHeight, false);
         refractionFbo = createWaterFbo(displayWidth / 2, displayHeight / 2, true);
 
-        player = PlayerHandler.getHandler().createPlayer().getPlayer();
+        try {
+            FixedEntityRegistry.addEntity(new SimpleTree(new Vector3f(0, -1, -6)));
+            FixedEntityRegistry.addEntity(new Velociraptor(new Vector3f(0, 0, 0)));
+            TerrainEntityRegistry.addEntity(new RiverlandEntity(new Vector3f(0, 0, 0)));
+            WaterEntityRegistry.addEntity(new WaterEntity(new Vector2f(0, 0), 16));
+
+            player = new PlayablePlayer();
+        } catch (ModelNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        InputManager.registerKeyboardInputListener(player);
+        InputManager.registerMouseInputListener(player);
 
         light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 
         Matrix4f projectionMatrix = Maths.createProjectionMatrix();
-        shadowMapMasterRenderer = new ShadowMapMasterRenderer(player.getCamera());
-        entityRenderer = new EntityRenderer(projectionMatrix);
-        terrainRenderer = new TerrainRenderer(projectionMatrix, shadowMapMasterRenderer.getShadowDistance(), shadowMapMasterRenderer.getShadowMapSize());
+        entityRenderer = new FixedEntityRenderer(projectionMatrix);
+        terrainRenderer = new TerrainRenderer(projectionMatrix, 30, 4096);
         waterRenderer = new WaterRenderer(projectionMatrix);
         guiRenderer = new GuiRenderer();
 
@@ -90,21 +93,6 @@ public class Engine {
     }
 
     private void loop() {
-        Model tree = ModelRegistry.getModel("simple_tree");
-        Model velociraptor = ModelRegistry.getModel("velociraptor");
-        Model riverland = ModelRegistry.getModel("riverland");
-
-        GraphicalEntity treeEntity = new GraphicalEntity(tree, new Vector3f(0, -1, -6), new Vector3f(0, 0, 0), 1);
-        GraphicalEntity velociraptorEntity = new GraphicalEntity(velociraptor, new Vector3f(0, 0, 0), new Vector3f(0, 60, 0), 1);
-        entities.add(treeEntity);
-        entities.add(velociraptorEntity);
-
-        Terrain terrain1 = new Terrain(riverland, new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), 1);
-        terrains.add(terrain1);
-
-        WaterTile tile = new WaterTile(new Vector2f(0, 0), 16, 1);
-        waterTiles.add(tile);
-
 //        guiTextures.add(new GuiTexture(shadowMapMasterRenderer.getShadowMap(), new Vector2f(-0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
 //        guiTextures.add(new GuiTexture(reflectionFbo.getColourBuffer(0), new Vector2f(-0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
 //        guiTextures.add(new GuiTexture(refractionFbo.getColourBuffer(0), new Vector2f(0.70f, 0.70f), new Vector2f(0.25f, 0.25f)));
@@ -117,11 +105,11 @@ public class Engine {
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(WindowManager.getWindow()) ) {
-            player.getCamera().update();
+            player.update();
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
-            doReflectionRender(new Vector4f(0, 1, 0, -WaterTile.WATER_HEIGHT + WaterTile.REFLECT_OFFSET));
-            doRefractionRender(new Vector4f(0, -1, 0, WaterTile.WATER_HEIGHT + WaterTile.REFRACT_OFFSET));
+            doReflectionRender(new Vector4f(0, 1, 0, -WaterRenderer.WATER_HEIGHT + WaterRenderer.REFLECT_OFFSET));
+            doRefractionRender(new Vector4f(0, -1, 0, WaterRenderer.WATER_HEIGHT + WaterRenderer.REFRACT_OFFSET));
             GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 
             doMainRender(new Vector4f(0, 0, 0, 0));
@@ -145,22 +133,22 @@ public class Engine {
 
     private void doReflectionRender(Vector4f clipPlane) {
         reflectionFbo.bindForRender(0);
-        float distance = 2 * (player.getPosition().y - WaterTile.WATER_HEIGHT);
-        player.getPosition().y -= distance;
-        player.getCamera().invertPitch();
+        float distance = 2 * (player.getLocation().y - WaterRenderer.WATER_HEIGHT);
+        player.getLocation().y -= distance;
+        player.invertPitch();
         prepareRender();
-        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
-        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
-        player.getCamera().invertPitch();
-        player.getPosition().y += distance;
+        entityRenderer.render(player, light, clipPlane);
+        terrainRenderer.render(player, light, clipPlane, new Matrix4f(), false);
+        player.invertPitch();
+        player.getLocation().y += distance;
         reflectionFbo.unbindAfterRender();
     }
 
     private void doRefractionRender(Vector4f clipPlane) {
         refractionFbo.bindForRender(0);
         prepareRender();
-        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
-        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
+        entityRenderer.render(player, light, clipPlane);
+        terrainRenderer.render(player, light, clipPlane, new Matrix4f(), false);
         refractionFbo.unbindAfterRender();
     }
 
@@ -169,13 +157,12 @@ public class Engine {
 
 //        shadowMapMasterRenderer.render(entities, light.getLightDirection());
 
-        entityRenderer.render(entities, player.getCamera(), light, clipPlane);
-        terrainRenderer.bindTextures(shadowMapMasterRenderer.getShadowMap());
-        terrainRenderer.render(terrains, player.getCamera(), light, clipPlane, new Matrix4f(), false);
+        entityRenderer.render(player, light, clipPlane);
+        terrainRenderer.render(player, light, clipPlane, new Matrix4f(), false);
 
         waterRenderer.bindTextures(reflectionFbo.getColourBuffer(0), refractionFbo.getColourBuffer(0), refractionFbo.getDepthBuffer());
-        waterRenderer.render(waterTiles, player.getCamera(), light);
-        guiRenderer.render(guiTextures);
+        waterRenderer.render(player, light);
+        guiRenderer.render();
     }
 
     private void cleanUp() {
@@ -183,12 +170,9 @@ public class Engine {
         terrainRenderer.cleanUp();
         waterRenderer.cleanUp();
         guiRenderer.cleanUp();
-        shadowMapMasterRenderer.cleanUp();
         reflectionFbo.delete();
         refractionFbo.delete();
-        for (GraphicalEntity graphicalEntity : entities) {
-            graphicalEntity.getModel().getMesh().cleanUp();
-        }
+        ModelRegistry.cleanUp();
     }
 
     private Fbo createWaterFbo(int width, int height, boolean useTextureForDepth) {

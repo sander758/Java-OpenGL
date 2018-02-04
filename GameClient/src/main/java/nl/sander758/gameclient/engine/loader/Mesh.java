@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine.loader;
 
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.util.ArrayList;
@@ -18,6 +19,17 @@ public class Mesh {
         vaoID = GL30.glGenVertexArrays();
     }
 
+    public void attachVBO(VBO vbo) {
+        vbo.store();
+        vbos.add(vbo);
+        switch (vbo.getVboType()) {
+            case FLOAT_DATA:
+            case BYTE_DATA:
+                attributeCount++;
+                break;
+        }
+    }
+
     public void bindVAO() {
         GL30.glBindVertexArray(vaoID);
     }
@@ -26,8 +38,22 @@ public class Mesh {
         GL30.glBindVertexArray(0);
     }
 
-    public List<VBO> getVbos() {
-        return vbos;
+    public void setVertexCount(int vertexCount) {
+        this.vertexCount = vertexCount;
+    }
+
+    public int getVertexCount() {
+        return vertexCount;
+    }
+
+    public void prepareRender() {
+        bindVAO();
+        bindAttributes();
+    }
+
+    public void endRender() {
+        unbindAttributes();
+        unbindVAO();
     }
 
     public void cleanUp() {
@@ -37,23 +63,15 @@ public class Mesh {
         }
     }
 
-    public void attachVBO(VBO vbo) {
-        vbo.store();
-        vbos.add(vbo);
-        if (vbo.getVboType() == VBOType.DATA_FLOAT) {
-            attributeCount++;
+    private void bindAttributes() {
+        for (int i = 0; i < attributeCount; i++) {
+            GL20.glEnableVertexAttribArray(i);
         }
     }
 
-    public int getAttributeCount() {
-        return attributeCount;
-    }
-
-    public void setVertexCount(int vertexCount) {
-        this.vertexCount = vertexCount;
-    }
-
-    public int getVertexCount() {
-        return vertexCount;
+    private void unbindAttributes() {
+        for (int i = attributeCount; i > 0; i--) {
+            GL20.glDisableVertexAttribArray(i);
+        }
     }
 }

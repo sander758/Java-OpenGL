@@ -29,14 +29,14 @@ public class VBO {
      * Attribute data
      */
     public VBO(int attributeNumber, int size, float[] data) {
-        this.vboType = VBOType.DATA_FLOAT;
+        this.vboType = VBOType.FLOAT_DATA;
         this.attributeNumber = attributeNumber;
         this.size = size;
         this.attributeData = data;
     }
 
     public VBO(int attributeNumber, int size, byte[] byteData) {
-        this.vboType = VBOType.DATA_BYTE;
+        this.vboType = VBOType.BYTE_DATA;
         this.attributeNumber = attributeNumber;
         this.size = size;
         this.byteData = byteData;
@@ -53,7 +53,7 @@ public class VBO {
     public void store() {
         vboID = GL15.glGenBuffers();
         switch (vboType) {
-            case DATA_FLOAT:
+            case FLOAT_DATA:
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
 
                 GL15.glBufferData(GL15.GL_ARRAY_BUFFER, createFloatBuffer(attributeData), GL15.GL_STATIC_DRAW);
@@ -62,7 +62,7 @@ public class VBO {
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                 break;
 
-            case DATA_BYTE:
+            case BYTE_DATA:
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
 
                 GL15.glBufferData(GL15.GL_ARRAY_BUFFER, createByteBuffer(byteData), GL15.GL_STATIC_DRAW);
@@ -91,7 +91,7 @@ public class VBO {
     /**
      * Creates a float buffer with all the data in the right order.
      *
-     * @param vectors the float data.
+     * @param data the float data.
      * @return The float buffer.
      */
     private FloatBuffer createFloatBuffer(float[] data) {
@@ -104,7 +104,7 @@ public class VBO {
     /**
      * Creates a int buffer with all ints in the right order.
      *
-     * @param indices the indices or just a list of ints.
+     * @param data the indices or just a list of ints.
      * @return The int buffer.
      */
     private IntBuffer createIntBuffer(int[] data) {
