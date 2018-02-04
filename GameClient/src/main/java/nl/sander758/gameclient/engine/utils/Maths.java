@@ -1,6 +1,5 @@
 package nl.sander758.gameclient.engine.utils;
 
-import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;

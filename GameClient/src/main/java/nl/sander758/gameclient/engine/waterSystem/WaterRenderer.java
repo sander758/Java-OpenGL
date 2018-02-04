@@ -1,7 +1,6 @@
 package nl.sander758.gameclient.engine.waterSystem;
 
 import nl.sander758.gameclient.engine.loader.Mesh;
-import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.player.PlayablePlayer;
 import nl.sander758.gameclient.engine.scene.Light;
 import nl.sander758.gameclient.engine.utils.Maths;
@@ -10,10 +9,6 @@ import nl.sander758.gameclient.engine.utils.Timer;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-
-import java.util.List;
 
 public class WaterRenderer {
     public static final float WATER_HEIGHT = -0.5f;

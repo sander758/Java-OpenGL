@@ -1,7 +1,6 @@
 package nl.sander758.gameclient.engine.player;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public interface Camera {

@@ -24,10 +24,10 @@ public class GameClient implements Runnable {
     }
 
     private void registerModels() {
+        ModelRegistry.register("player", new FileModel("models/player/player.obj"));
         ModelRegistry.register("velociraptor", new FileModel("models/lp_velociraptor/lp_velociraptor.obj"));
         ModelRegistry.register("simple_tree", new FileModel("models/simpletree/simpletree.obj"));
         ModelRegistry.register("riverland", new FileModel("models/riverland/riverland.obj"));
-        ModelRegistry.register("player", new FileModel("models/player/player.obj"));
         ModelRegistry.register("water_16", new WaterModel(16));
     }
 }

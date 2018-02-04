@@ -1,18 +1,14 @@
 package nl.sander758.gameclient.engine.terrainSystem;
 
 import nl.sander758.gameclient.engine.entitySystem.entities.TerrainEntity;
-import nl.sander758.gameclient.engine.player.Camera;
 import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.player.PlayablePlayer;
 import nl.sander758.gameclient.engine.scene.Light;
-import nl.sander758.gameclient.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-
-import java.util.List;
 
 public class TerrainRenderer {
 
