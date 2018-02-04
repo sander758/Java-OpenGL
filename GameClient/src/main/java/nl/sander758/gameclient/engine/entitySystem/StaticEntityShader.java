@@ -5,7 +5,7 @@ import nl.sander758.gameclient.engine.shaders.UniformMatrix;
 import nl.sander758.gameclient.engine.shaders.UniformVec3;
 import nl.sander758.gameclient.engine.shaders.UniformVec4;
 
-public class FixedEntityShader extends ShaderProgram {
+public class StaticEntityShader extends ShaderProgram {
 
     private static final String VERTEX_FILE = "shaders/entitySystem/vertexShader.glsl";
     private static final String GEOMETRY_FILE = "shaders/entitySystem/geometryShader.glsl";
@@ -20,7 +20,7 @@ public class FixedEntityShader extends ShaderProgram {
 
     public UniformVec4 clipPlane = new UniformVec4("clipPlane");
 
-    public FixedEntityShader() {
+    public StaticEntityShader() {
         super(VERTEX_FILE, GEOMETRY_FILE, FRAGMENT_FILE);
 
         super.initializeUniformLocations(

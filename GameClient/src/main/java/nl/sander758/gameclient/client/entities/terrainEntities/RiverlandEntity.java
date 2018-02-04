@@ -1,4 +1,4 @@
-package nl.sander758.gameclient.client.entities.terrain;
+package nl.sander758.gameclient.client.entities.terrainEntities;
 
 import nl.sander758.gameclient.engine.entitySystem.entities.TerrainEntity;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;

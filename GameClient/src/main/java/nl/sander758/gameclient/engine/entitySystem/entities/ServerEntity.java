@@ -2,7 +2,7 @@ package nl.sander758.gameclient.engine.entitySystem.entities;
 
 import nl.sander758.gameclient.engine.loader.Model;
 
-public abstract class ServerEntity extends Entity {
+public abstract class ServerEntity extends StaticEntity {
     private final int serverId;
 
     public ServerEntity(Model model) {

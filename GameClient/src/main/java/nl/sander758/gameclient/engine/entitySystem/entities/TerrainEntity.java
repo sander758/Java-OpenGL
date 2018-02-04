@@ -1,9 +1,7 @@
 package nl.sander758.gameclient.engine.entitySystem.entities;
 
 import nl.sander758.gameclient.engine.loader.Model;
-import nl.sander758.gameclient.engine.utils.Maths;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public abstract class TerrainEntity extends EnvironmentalEntity implements HasHeight {

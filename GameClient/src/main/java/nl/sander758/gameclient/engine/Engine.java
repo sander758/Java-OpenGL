@@ -1,11 +1,11 @@
 package nl.sander758.gameclient.engine;
 
-import nl.sander758.gameclient.client.entities.fixed.SimpleTree;
-import nl.sander758.gameclient.client.entities.fixed.Velociraptor;
-import nl.sander758.gameclient.client.entities.terrain.RiverlandEntity;
+import nl.sander758.gameclient.client.entities.staticEntities.SimpleTree;
+import nl.sander758.gameclient.client.entities.staticEntities.Velociraptor;
+import nl.sander758.gameclient.client.entities.terrainEntities.RiverlandEntity;
 import nl.sander758.gameclient.engine.display.WindowManager;
-import nl.sander758.gameclient.engine.entitySystem.FixedEntityRegistry;
-import nl.sander758.gameclient.engine.entitySystem.FixedEntityRenderer;
+import nl.sander758.gameclient.engine.entitySystem.StaticEntityRegistry;
+import nl.sander758.gameclient.engine.entitySystem.StaticEntityRenderer;
 import nl.sander758.gameclient.engine.fbos.Attachment;
 import nl.sander758.gameclient.engine.fbos.Fbo;
 import nl.sander758.gameclient.engine.fbos.RenderBufferAttachment;
@@ -46,7 +46,7 @@ public class Engine {
     private PlayablePlayer player;
     private Light light;
 
-    private FixedEntityRenderer entityRenderer;
+    private StaticEntityRenderer entityRenderer;
     private TerrainRenderer terrainRenderer;
     private WaterRenderer waterRenderer;
     private GuiRenderer guiRenderer;
@@ -64,12 +64,13 @@ public class Engine {
         refractionFbo = createWaterFbo(displayWidth / 2, displayHeight / 2, true);
 
         try {
-            FixedEntityRegistry.addEntity(new SimpleTree(new Vector3f(0, -1, -6)));
-            FixedEntityRegistry.addEntity(new Velociraptor(new Vector3f(0, 0, 0)));
+            StaticEntityRegistry.addEntity(new SimpleTree(new Vector3f(0, -1, -6)));
+            StaticEntityRegistry.addEntity(new Velociraptor(new Vector3f(0, 0, 0)));
             TerrainEntityRegistry.addEntity(new RiverlandEntity(new Vector3f(0, 0, 0)));
             WaterEntityRegistry.addEntity(new WaterEntity(new Vector2f(0, 0), 16));
 
             player = new PlayablePlayer();
+            StaticEntityRegistry.addEntity(player);
         } catch (ModelNotFoundException e) {
             e.printStackTrace();
         }
@@ -80,7 +81,7 @@ public class Engine {
         light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 
         Matrix4f projectionMatrix = Maths.createProjectionMatrix();
-        entityRenderer = new FixedEntityRenderer(projectionMatrix);
+        entityRenderer = new StaticEntityRenderer(projectionMatrix);
         terrainRenderer = new TerrainRenderer(projectionMatrix, 30, 4096);
         waterRenderer = new WaterRenderer(projectionMatrix);
         guiRenderer = new GuiRenderer();

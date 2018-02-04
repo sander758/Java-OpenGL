@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine.shaders;
 
+import nl.sander758.common.logger.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -13,7 +14,7 @@ abstract class Shader {
     private final int shaderID;
 
     Shader(String path, int type) {
-        System.out.println("try loading shader: " + path);
+        Logger.debug("try loading shader: " + path);
 
         StringBuilder shaderSource = new StringBuilder();
         try {
@@ -30,17 +31,14 @@ abstract class Shader {
             }
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
+            Logger.error(e);
         }
 
         shaderID = GL20.glCreateShader(type);
         GL20.glShaderSource(shaderID, shaderSource);
         GL20.glCompileShader(shaderID);
         if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-            System.out.println(GL20.glGetShaderInfoLog(shaderID, 500));
-            System.err.println("Could not compile shader: " + path);
-            System.exit(-1);
+            Logger.error(GL20.glGetShaderInfoLog(shaderID, 500), "Could not compile shader: " + path);
         }
     }
 

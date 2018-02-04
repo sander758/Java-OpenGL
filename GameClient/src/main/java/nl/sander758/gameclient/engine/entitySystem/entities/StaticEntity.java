@@ -4,13 +4,21 @@ import nl.sander758.gameclient.engine.loader.Model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public abstract class FixedEntity extends EnvironmentalEntity implements Rotatable, Scalable {
+public abstract class StaticEntity extends Entity implements Rotatable, Scalable {
 
     private Vector3f rotation = new Vector3f(0, 0, 0);
     private float scale = 1;
 
-    public FixedEntity(Model model, Vector3f location) {
-        super(model, location);
+    public StaticEntity(Model model) {
+        super(model);
+    }
+
+    public StaticEntity(Model model, Vector3f location) {
+        super(model);
+        Vector3f entityLocation = getLocation();
+        entityLocation.x = location.x;
+        entityLocation.y = location.y;
+        entityLocation.z = location.z;
         updateTransformationMatrix();
     }
 
