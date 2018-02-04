@@ -1,9 +1,12 @@
 package nl.sander758.gameclient.engine.entitySystem;
 
 import nl.sander758.gameclient.engine.entitySystem.entities.StaticEntity;
+import nl.sander758.gameclient.engine.player.PlayerHandler;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class StaticEntityRegistry {
 
@@ -21,6 +24,8 @@ public class StaticEntityRegistry {
     }
 
     public static Collection<StaticEntity> getEntities() {
-        return entities.values();
+        List<StaticEntity> staticEntities = new ArrayList<>(entities.values());
+        staticEntities.addAll(PlayerHandler.getServerPlayerEntities());
+        return staticEntities;
     }
 }

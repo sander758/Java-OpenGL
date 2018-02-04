@@ -2,11 +2,13 @@ package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.SocketRunnable;
+import nl.sander758.gameclient.engine.player.PlayerHandler;
+import nl.sander758.gameclient.engine.player.PlayerNotFoundException;
+import nl.sander758.gameclient.network.packets.out.PlayerMovePacketOut;
 
 public class SocketUpdater extends SocketRunnable {
 
     private static int TICKS_PER_SECOND = 20;
-//    private PlayerHandler playerHandler = PlayerHandler.getHandler();
 
     private SocketClient client;
 
@@ -21,14 +23,19 @@ public class SocketUpdater extends SocketRunnable {
         Logger.info("Seconds per update: " + secondsPerUpdate);
 
         while (client.isRunning()) {
-            long startTime = getTime();
+            try {
+                long startTime = getTime();
 
-            Logger.debug("update game state: " + getTime());
-//            if (playerHandler.getPlayer() != null) {
-//                trySend(new PlayerMovePacketOut(playerHandler.getPlayer().getCamera().getNewLocation()));
-//            }
+                Logger.debug("update game state: " + getTime());
+                if (PlayerHandler.getPlayablePlayer() != null) {
+                    trySend(new PlayerMovePacketOut(PlayerHandler.getPlayablePlayer().getLocation()));
+                }
 
-            sync(startTime);
+                sync(startTime);
+            } catch (PlayerNotFoundException e) {
+                Logger.error(e);
+            }
+
         }
     }
 
