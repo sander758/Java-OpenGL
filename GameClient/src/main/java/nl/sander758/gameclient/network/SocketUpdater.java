@@ -2,7 +2,6 @@ package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.SocketRunnable;
-import nl.sander758.gameclient.network.packets.PlayerMovePacketOut;
 
 public class SocketUpdater extends SocketRunnable {
 

@@ -1,13 +1,14 @@
 package nl.sander758.gameclient.engine.entitySystem.entities;
 
-import nl.sander758.gameclient.engine.loader.Model;
+import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
+import nl.sander758.gameclient.engine.loader.ModelRegistry;
 
 public abstract class Player extends ServerEntity implements Nameable {
 
     private String name = "";
 
-    public Player(Model model) {
-        super(model);
+    public Player(int clientId) throws ModelNotFoundException {
+        super(ModelRegistry.getModel("player"), clientId);
     }
 
     @Override

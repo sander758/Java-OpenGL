@@ -6,21 +6,22 @@ public class Player {
 
     private final int id;
 
-    private Vector3f position;
+    private Vector3f location;
 
     public Player(int id) {
         this.id = id;
+        this.location = new Vector3f(0, 0, 0);
     }
 
     public int getId() {
         return id;
     }
 
-    public Vector3f getPosition() {
-        return position;
+    public Vector3f getLocation() {
+        return location;
     }
 
-    public void setPosition(Vector3f position) {
-        this.position = position;
+    public void setLocation(Vector3f location) {
+        this.location = location;
     }
 }

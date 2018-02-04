@@ -19,12 +19,12 @@ public class PlayerHandler {
         players.put(player.getId(), player);
     }
 
-    public void removePlayer(int playerId) {
-        players.remove(playerId);
+    public void removePlayer(int clientId) {
+        players.remove(clientId);
     }
 
-    public Player getPlayer(int playerId) {
-        return players.get(playerId);
+    public Player getPlayer(int clientId) {
+        return players.get(clientId);
     }
 
     public Collection<Player> getPlayers() {

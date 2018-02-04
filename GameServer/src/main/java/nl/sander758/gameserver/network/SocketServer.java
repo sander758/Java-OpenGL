@@ -48,6 +48,20 @@ public class SocketServer implements Runnable {
         return isRunning;
     }
 
+    private void addClient(Socket socket) {
+        try {
+            int clientId = clientCount;
+            clientCount++;
+
+            Logger.info("Adding new socket with id: " + clientId);
+            ClientConnection client = new ClientConnection(clientId, socket, this);
+            client.start();
+            connections.put(clientId, client);
+        } catch (IOException e) {
+            Logger.error(e);
+        }
+    }
+
     public void removeClient(int clientId, String reason) {
         if (!connections.containsKey(clientId)) {
             Logger.error("Unknown clientId to remove");
@@ -56,16 +70,7 @@ public class SocketServer implements Runnable {
         Logger.debug("Client: " + clientId + " disconnected with reason: " + reason);
         ClientConnection connection = connections.get(clientId);
         connection.close();
+        connections.remove(clientId);
         PlayerHandler.getPlayerHandler().removePlayer(clientId);
-    }
-
-    private void addClient(Socket socket) {
-        int clientId = clientCount;
-        clientCount++;
-
-        Logger.info("Adding new socket with id: " + clientId);
-        ClientConnection client = new ClientConnection(clientId, socket, this);
-        new Thread(client).start();
-        connections.put(clientId, client);
     }
 }

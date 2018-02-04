@@ -1,12 +1,10 @@
-package nl.sander758.gameclient.network.packets;
+package nl.sander758.gameserver.network.packets.in;
 
 import nl.sander758.common.network.DataDeserializer;
 import nl.sander758.common.network.PacketIn;
 import nl.sander758.common.network.PacketType;
 
-public class PlayersLocationPacketIn extends PacketIn {
-
-
+public class ClientRegisterPacketIn extends PacketIn {
 
     @Override
     public void deserialize(DataDeserializer deserializer) {
@@ -15,6 +13,6 @@ public class PlayersLocationPacketIn extends PacketIn {
 
     @Override
     public PacketType getId() {
-        return PacketType.PLAYERS_LOCATION_PACKET;
+        return PacketType.REGISTER_PACKET;
     }
 }

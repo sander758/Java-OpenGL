@@ -1,9 +1,11 @@
 package nl.sander758.common.network;
 
 public enum PacketType {
-    PLAYER_MOVE_PACKET(1),
-    DISCONNECT_PACKET(2),
-    PLAYERS_LOCATION_PACKET(3);
+    REGISTER_PACKET(1),
+    ACCEPT_REGISTER(2),
+    DISCONNECT_PACKET(3),
+    PLAYER_MOVE_PACKET(4),
+    PLAYERS_LOCATION_PACKET(5);
 
     private final int id;
 

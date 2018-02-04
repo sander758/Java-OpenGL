@@ -2,7 +2,7 @@ package nl.sander758.gameserver.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.gameserver.player.PlayerHandler;
-import nl.sander758.gameserver.network.packets.PlayersLocationPacketOut;
+import nl.sander758.gameserver.network.packets.out.PlayersLocationPacketOut;
 
 import java.util.Collection;
 
@@ -24,10 +24,10 @@ public class SocketUpdater implements Runnable {
             Collection<ClientConnection> connections = server.getConnections().values();
             PlayersLocationPacketOut playersLocationPacketOut = new PlayersLocationPacketOut(PlayerHandler.getPlayerHandler().getPlayers());
 
+            Logger.debug("time: " + startTime + " players: " + connections.size());
             for (ClientConnection connection : connections) {
                 connection.trySend(playersLocationPacketOut);
             }
-            Logger.debug("send server update: " + startTime);
 
             sync(startTime);
         }

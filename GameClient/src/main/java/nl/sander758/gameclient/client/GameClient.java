@@ -4,6 +4,7 @@ import nl.sander758.gameclient.engine.Engine;
 import nl.sander758.gameclient.engine.loader.fileModel.FileModel;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
 import nl.sander758.gameclient.engine.waterSystem.WaterModel;
+import nl.sander758.gameclient.network.SocketClient;
 
 public class GameClient implements Runnable {
 
@@ -16,11 +17,11 @@ public class GameClient implements Runnable {
 
         registerModels();
 
-//        SocketClient.getClient().connect();
+        SocketClient.getClient().connect();
 
         engine.start();
 
-//        SocketClient.getClient().disconnect();
+        SocketClient.getClient().disconnect();
     }
 
     private void registerModels() {

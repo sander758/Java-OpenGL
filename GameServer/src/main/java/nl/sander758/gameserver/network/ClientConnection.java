@@ -4,9 +4,11 @@ import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.*;
 import nl.sander758.common.network.packets.DisconnectPacketIn;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.gameserver.network.packets.in.ClientRegisterPacketIn;
+import nl.sander758.gameserver.network.packets.out.AcceptRegisterPacketOut;
 import nl.sander758.gameserver.player.Player;
 import nl.sander758.gameserver.player.PlayerHandler;
-import nl.sander758.gameserver.network.packets.PlayerMovePacketIn;
+import nl.sander758.gameserver.network.packets.in.PlayerMovePacketIn;
 
 import java.io.*;
 import java.net.Socket;
@@ -24,9 +26,6 @@ public class ClientConnection extends SocketRunnable {
         super(socket);
         this.clientId = clientId;
         this.server = server;
-
-        player = new Player(clientId);
-        PlayerHandler.getPlayerHandler().addPlayer(player);
     }
 
     @Override
@@ -48,10 +47,12 @@ public class ClientConnection extends SocketRunnable {
                 }
 
                 switch (type) {
-                    case PLAYER_MOVE_PACKET:
-                        PlayerMovePacketIn playerMovePacketIn = new PlayerMovePacketIn();
-                        playerMovePacketIn.deserialize(deserializer);
-                        player.setPosition(playerMovePacketIn.getLocation());
+                    case REGISTER_PACKET:
+                        ClientRegisterPacketIn clientRegister = new ClientRegisterPacketIn();
+                        player = new Player(clientId);
+                        PlayerHandler.getPlayerHandler().addPlayer(player);
+                        trySend(new AcceptRegisterPacketOut(clientId));
+
                         break;
                     case DISCONNECT_PACKET:
                         Logger.debug("Disconnect packet received from socket: " + clientId);
@@ -62,6 +63,11 @@ public class ClientConnection extends SocketRunnable {
                         }
                         server.removeClient(clientId, "Disconnect requested from socket");
                         break;
+                    case PLAYER_MOVE_PACKET:
+                        PlayerMovePacketIn playerMovePacketIn = new PlayerMovePacketIn();
+                        playerMovePacketIn.deserialize(deserializer);
+                        player.setLocation(playerMovePacketIn.getLocation());
+                        break;
                 }
             }
         } catch (IOException e) {
@@ -69,10 +75,6 @@ public class ClientConnection extends SocketRunnable {
             Logger.error(e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public boolean isAlive() {
-        return !socket.isClosed();
     }
 
     public void close() {

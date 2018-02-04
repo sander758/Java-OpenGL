@@ -5,7 +5,6 @@ import nl.sander758.gameclient.engine.entitySystem.entities.Controllable;
 import nl.sander758.gameclient.engine.entitySystem.entities.Player;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
-import nl.sander758.gameclient.engine.loader.ModelRegistry;
 import nl.sander758.gameclient.engine.utils.Timer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -34,8 +33,8 @@ public class PlayablePlayer extends Player implements Collidable, Controllable {
 
     private Camera activeCamera;
 
-    public PlayablePlayer() throws ModelNotFoundException {
-        super(ModelRegistry.getModel("player"));
+    public PlayablePlayer(int clientId) throws ModelNotFoundException {
+        super(clientId);
 
         activeCamera = new FirstPersonCamera();
     }

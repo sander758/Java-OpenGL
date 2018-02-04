@@ -27,7 +27,16 @@ public abstract class SocketRunnable implements Runnable {
         thread.start();
     }
 
+    public boolean isAlive() {
+        return socket != null && !socket.isClosed();
+    }
+
     public void trySend(PacketOut packet) {
+        if (!isAlive()) {
+            Logger.error("Socket connection not alive");
+            return;
+        }
+
         DataSerializer dataSerializer = new DataSerializer();
         PacketType packetType = packet.getId();
         dataSerializer.writeUnsignedByte(packetType.getId());

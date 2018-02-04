@@ -1,4 +1,4 @@
-package nl.sander758.gameserver.network.packets;
+package nl.sander758.gameserver.network.packets.in;
 
 import nl.sander758.common.network.DataDeserializer;
 import nl.sander758.common.network.PacketIn;

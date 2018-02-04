@@ -4,6 +4,10 @@ import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.*;
 import nl.sander758.common.network.packets.DisconnectPacketIn;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
+import nl.sander758.gameclient.engine.player.PlayerHandler;
+import nl.sander758.gameclient.network.packets.in.AcceptRegisterPacketIn;
+import nl.sander758.gameclient.network.packets.in.PlayersLocationPacketIn;
 
 import java.io.*;
 
@@ -35,6 +39,17 @@ class SocketListener extends SocketRunnable {
                 }
 
                 switch (type) {
+                    case ACCEPT_REGISTER:
+                        AcceptRegisterPacketIn acceptRegister = new AcceptRegisterPacketIn();
+                        acceptRegister.deserialize(deserializer);
+                        try {
+                            PlayerHandler.createPlayablePlayer(acceptRegister.getClientId());
+                        } catch (ModelNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        client.register();
+                        break;
+
                     case DISCONNECT_PACKET:
                         Logger.debug("Disconnect packet received");
                         DisconnectPacketIn disconnectPacket = new DisconnectPacketIn();
@@ -43,6 +58,12 @@ class SocketListener extends SocketRunnable {
                             trySend(new DisconnectPacketOut(false));
                         }
                         client.close();
+                        break;
+
+                    case PLAYERS_LOCATION_PACKET:
+                        PlayersLocationPacketIn playersLocations = new PlayersLocationPacketIn();
+                        playersLocations.deserialize(deserializer);
+                        PlayerHandler.updateServerPlayers(playersLocations.getPlayersLocations());
                         break;
                 }
             }

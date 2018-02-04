@@ -2,8 +2,8 @@ package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.PacketOut;
-import nl.sander758.common.network.packets.DisconnectPacketIn;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.gameclient.network.packets.out.ClientRegisterPacketOut;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,7 @@ public class SocketClient {
 
     private Socket socket;
     private boolean isRunning;
+    private boolean registered = false;
 
 
     private SocketClient() {
@@ -46,12 +47,24 @@ public class SocketClient {
             socketListener = new SocketListener(this);
             socketListener.start();
 
+            socketListener.trySend(new ClientRegisterPacketOut());
+
+            // TODO update this with a notify
+            // https://stackoverflow.com/questions/5999100/is-there-a-block-until-condition-becomes-true-function-in-java
+            while (!registered) {
+                Thread.sleep(50);
+            }
+
             socketUpdater = new SocketUpdater(this);
             socketUpdater.start();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            Logger.error(e);
         }
+    }
+
+    public void register() {
+        registered = true;
     }
 
     public Socket getSocket() {
@@ -59,22 +72,6 @@ public class SocketClient {
             throw new NotYetConnectedException();
         }
         return socket;
-    }
-
-    public void trySend(PacketOut packet) {
-        if (socket == null) {
-            Logger.debug("No active socket socketListener");
-            return;
-        }
-        if (!isAlive()) {
-            Logger.error("Socket connection is not alive anymore");
-            return;
-        }
-        socketListener.trySend(packet);
-    }
-
-    public boolean isAlive() {
-        return socket != null && !socket.isClosed();
     }
 
     public boolean isRunning() {
@@ -93,7 +90,7 @@ public class SocketClient {
             if (outputStream != null) {
                 outputStream.close();
             }
-            if (!isAlive()) {
+            if (socketListener.isAlive()) {
                 socket.close();
             }
         } catch (IOException e) {
@@ -102,6 +99,6 @@ public class SocketClient {
     }
 
     public void disconnect() {
-        trySend(new DisconnectPacketOut(true));
+        socketListener.trySend(new DisconnectPacketOut(true));
     }
 }
