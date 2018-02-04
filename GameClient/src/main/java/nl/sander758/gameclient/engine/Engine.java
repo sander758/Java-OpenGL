@@ -139,8 +139,8 @@ public class Engine {
         prepareRender();
         entityRenderer.render(player, light, clipPlane);
         terrainRenderer.render(player, light, clipPlane, new Matrix4f(), false);
-        player.invertPitch();
         player.getLocation().y += distance;
+        player.invertPitch();
         reflectionFbo.unbindAfterRender();
     }
 

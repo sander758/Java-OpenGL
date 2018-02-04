@@ -78,7 +78,7 @@ public class PlayablePlayer extends Player implements Collidable, Controllable {
 
     public void invertPitch() {
         this.pitch = -pitch;
-//        activeCamera.updateViewMatrix(getLocation(), yaw, pitch);
+        activeCamera.updateViewMatrix(getLocation(), yaw, pitch);
     }
 
     @Override
