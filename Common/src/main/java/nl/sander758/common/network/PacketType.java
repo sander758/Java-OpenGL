@@ -5,7 +5,8 @@ public enum PacketType {
     ACCEPT_REGISTER(2),
     DISCONNECT_PACKET(3),
     PLAYER_MOVE_PACKET(4),
-    PLAYERS_LOCATION_PACKET(5);
+    PLAYERS_LOCATION_PACKET(5),
+    REMOVE_PLAYER(6);
 
     private final int id;
 

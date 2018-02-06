@@ -8,6 +8,7 @@ import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.player.PlayerHandler;
 import nl.sander758.gameclient.network.packetsIn.AcceptRegisterPacketIn;
 import nl.sander758.gameclient.network.packetsIn.PlayersLocationPacketIn;
+import nl.sander758.gameclient.network.packetsIn.RemovePlayerPacketIn;
 
 import java.io.*;
 
@@ -65,6 +66,11 @@ class SocketListener extends SocketRunnable {
                         playersLocations.deserialize(deserializer);
                         PlayerHandler.updateServerPlayers(playersLocations.getPlayersLocations());
                         break;
+
+                    case REMOVE_PLAYER:
+                        RemovePlayerPacketIn removePlayer = new RemovePlayerPacketIn();
+                        removePlayer.deserialize(deserializer);
+                        PlayerHandler.removeServerPlayer(removePlayer.getClientId());
                 }
             }
         } catch (IOException e) {

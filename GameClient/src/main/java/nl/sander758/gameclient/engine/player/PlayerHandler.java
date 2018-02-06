@@ -52,4 +52,10 @@ public class PlayerHandler {
         return serverPlayers.values();
     }
 
+    public static void removeServerPlayer(int clientId) {
+        if (serverPlayers.containsKey(clientId)) {
+            serverPlayers.remove(clientId);
+        }
+    }
+
 }

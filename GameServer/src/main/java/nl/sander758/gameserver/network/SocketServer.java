@@ -1,6 +1,7 @@
 package nl.sander758.gameserver.network;
 
 import nl.sander758.common.logger.Logger;
+import nl.sander758.gameserver.network.packetsOut.RemovePlayerPacketOut;
 import nl.sander758.gameserver.player.PlayerHandler;
 
 import java.io.IOException;
@@ -72,5 +73,8 @@ public class SocketServer implements Runnable {
         connection.close();
         connections.remove(clientId);
         PlayerHandler.getPlayerHandler().removePlayer(clientId);
+        for (ClientConnection clientConnection : connections.values()) {
+            clientConnection.trySend(new RemovePlayerPacketOut(clientId));
+        }
     }
 }
