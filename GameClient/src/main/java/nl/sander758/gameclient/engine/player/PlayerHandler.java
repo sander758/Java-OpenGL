@@ -30,6 +30,8 @@ public class PlayerHandler {
 
     public static void updateServerPlayers(HashMap<Integer, Vector3f> players) {
         try {
+            long timestamp = System.currentTimeMillis();
+
             for (Integer clientId : players.keySet()) {
                 if (playablePlayer == null || clientId == playablePlayer.getClientId()) {
                     continue;
@@ -39,7 +41,7 @@ public class PlayerHandler {
                     ServerPlayerEntity playerEntity = new ServerPlayerEntity(clientId);
                     serverPlayers.put(clientId, playerEntity);
                 }
-                serverPlayers.get(clientId).setLocation(players.get(clientId));
+                serverPlayers.get(clientId).updateState(timestamp, players.get(clientId));
             }
         } catch (ModelNotFoundException e) {
             Logger.error(e);

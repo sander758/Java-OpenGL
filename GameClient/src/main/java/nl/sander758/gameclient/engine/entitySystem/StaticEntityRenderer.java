@@ -29,6 +29,7 @@ public class StaticEntityRenderer {
             if (fixedEntity.getModel() == null) {
                 continue;
             }
+            fixedEntity.preRender();
             shader.transformationMatrix.loadUniform(fixedEntity.getTransformationMatrix());
             for (Mesh mesh : fixedEntity.getModel().getMeshes()) {
                 mesh.prepareRender();

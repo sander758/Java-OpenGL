@@ -25,7 +25,7 @@ public class SocketUpdater extends SocketRunnable {
         while (client.isRunning()) {
             try {
                 long startTime = getTime();
-                
+
                 if (PlayerHandler.getPlayablePlayer() != null) {
                     trySend(new PlayerMovePacketOut(PlayerHandler.getPlayablePlayer().getLocation()));
                 }

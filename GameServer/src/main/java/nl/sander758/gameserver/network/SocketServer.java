@@ -50,8 +50,8 @@ public class SocketServer implements Runnable {
 
     private void addClient(Socket socket) {
         try {
-            int clientId = clientCount;
             clientCount++;
+            int clientId = clientCount;
 
             Logger.info("Adding new socket with id: " + clientId);
             ClientConnection client = new ClientConnection(clientId, socket, this);
@@ -67,7 +67,7 @@ public class SocketServer implements Runnable {
             Logger.error("Unknown clientId to remove");
             return;
         }
-        Logger.debug("Client: " + clientId + " disconnected with reason: " + reason);
+        Logger.info("Client: " + clientId + " disconnected with reason: " + reason);
         ClientConnection connection = connections.get(clientId);
         connection.close();
         connections.remove(clientId);

@@ -37,4 +37,8 @@ public abstract class Entity {
         return transformationMatrix;
     }
 
+    public void preRender() {
+        //
+    }
+
 }
