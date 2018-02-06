@@ -1,9 +1,8 @@
 package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
-import nl.sander758.common.network.PacketOut;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
-import nl.sander758.gameclient.network.packets.out.ClientRegisterPacketOut;
+import nl.sander758.gameclient.network.packetsOut.ClientRegisterPacketOut;
 
 import java.io.IOException;
 import java.io.InputStream;

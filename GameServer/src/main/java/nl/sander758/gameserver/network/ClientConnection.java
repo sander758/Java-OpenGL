@@ -4,11 +4,11 @@ import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.*;
 import nl.sander758.common.network.packets.DisconnectPacketIn;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
-import nl.sander758.gameserver.network.packets.in.ClientRegisterPacketIn;
-import nl.sander758.gameserver.network.packets.out.AcceptRegisterPacketOut;
+import nl.sander758.gameserver.network.packetsIn.ClientRegisterPacketIn;
+import nl.sander758.gameserver.network.packetsOut.AcceptRegisterPacketOut;
 import nl.sander758.gameserver.player.Player;
 import nl.sander758.gameserver.player.PlayerHandler;
-import nl.sander758.gameserver.network.packets.in.PlayerMovePacketIn;
+import nl.sander758.gameserver.network.packetsIn.PlayerMovePacketIn;
 
 import java.io.*;
 import java.net.Socket;

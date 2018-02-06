@@ -6,8 +6,8 @@ import nl.sander758.common.network.packets.DisconnectPacketIn;
 import nl.sander758.common.network.packets.DisconnectPacketOut;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.player.PlayerHandler;
-import nl.sander758.gameclient.network.packets.in.AcceptRegisterPacketIn;
-import nl.sander758.gameclient.network.packets.in.PlayersLocationPacketIn;
+import nl.sander758.gameclient.network.packetsIn.AcceptRegisterPacketIn;
+import nl.sander758.gameclient.network.packetsIn.PlayersLocationPacketIn;
 
 import java.io.*;
 

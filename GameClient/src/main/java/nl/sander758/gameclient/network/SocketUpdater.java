@@ -4,7 +4,7 @@ import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.SocketRunnable;
 import nl.sander758.gameclient.engine.player.PlayerHandler;
 import nl.sander758.gameclient.engine.player.PlayerNotFoundException;
-import nl.sander758.gameclient.network.packets.out.PlayerMovePacketOut;
+import nl.sander758.gameclient.network.packetsOut.PlayerMovePacketOut;
 
 public class SocketUpdater extends SocketRunnable {
 
@@ -25,8 +25,7 @@ public class SocketUpdater extends SocketRunnable {
         while (client.isRunning()) {
             try {
                 long startTime = getTime();
-
-                Logger.debug("update game state: " + getTime());
+                
                 if (PlayerHandler.getPlayablePlayer() != null) {
                     trySend(new PlayerMovePacketOut(PlayerHandler.getPlayablePlayer().getLocation()));
                 }
