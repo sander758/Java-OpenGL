@@ -1,7 +1,8 @@
 package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
-import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.common.network.PacketOut;
+import nl.sander758.common.network.packetsOut.DisconnectPacketOut;
 import nl.sander758.gameclient.network.packetsOut.ClientRegisterPacketOut;
 
 import java.io.IOException;
@@ -71,6 +72,10 @@ public class SocketClient {
             throw new NotYetConnectedException();
         }
         return socket;
+    }
+
+    public void trySend(PacketOut packetOut) {
+        socketUpdater.trySend(packetOut);
     }
 
     public boolean isRunning() {

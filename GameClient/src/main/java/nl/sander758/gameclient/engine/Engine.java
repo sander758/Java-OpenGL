@@ -27,6 +27,7 @@ import nl.sander758.gameclient.engine.utils.Timer;
 import nl.sander758.gameclient.engine.waterSystem.WaterEntity;
 import nl.sander758.gameclient.engine.waterSystem.WaterEntityRegistry;
 import nl.sander758.gameclient.engine.waterSystem.WaterRenderer;
+import nl.sander758.gameclient.network.PingManager;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -75,6 +76,7 @@ public class Engine {
 
             InputManager.registerKeyboardInputListener(player);
             InputManager.registerMouseInputListener(player);
+            InputManager.registerKeyboardInputListener(PingManager.getManager());
 
             light = new Light(new Vector3f(0.8f, -0.8f, 0.2f), new Vector3f(1f, 1f, 1f), new Vector2f(0.3f, 0.8f));
 

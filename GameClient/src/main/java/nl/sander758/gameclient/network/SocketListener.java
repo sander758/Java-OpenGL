@@ -2,8 +2,9 @@ package nl.sander758.gameclient.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.*;
-import nl.sander758.common.network.packets.DisconnectPacketIn;
-import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.common.network.packetsIn.DisconnectPacketIn;
+import nl.sander758.common.network.packetsIn.PongPacketIn;
+import nl.sander758.common.network.packetsOut.DisconnectPacketOut;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.player.PlayerHandler;
 import nl.sander758.gameclient.network.packetsIn.AcceptRegisterPacketIn;
@@ -71,6 +72,13 @@ class SocketListener extends SocketRunnable {
                         RemovePlayerPacketIn removePlayer = new RemovePlayerPacketIn();
                         removePlayer.deserialize(deserializer);
                         PlayerHandler.removeServerPlayer(removePlayer.getClientId());
+                        break;
+
+                    case PONG_PACKET:
+                        PongPacketIn pongPacket = new PongPacketIn();
+                        pongPacket.deserialize(deserializer);
+                        PingManager.getManager().callback(pongPacket.getData());
+                        break;
                 }
             }
         } catch (IOException e) {

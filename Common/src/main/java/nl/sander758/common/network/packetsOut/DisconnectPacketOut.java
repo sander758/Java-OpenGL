@@ -1,4 +1,4 @@
-package nl.sander758.common.network.packets;
+package nl.sander758.common.network.packetsOut;
 
 import nl.sander758.common.network.DataSerializer;
 import nl.sander758.common.network.PacketOut;

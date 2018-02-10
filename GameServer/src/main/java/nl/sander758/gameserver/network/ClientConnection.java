@@ -2,8 +2,10 @@ package nl.sander758.gameserver.network;
 
 import nl.sander758.common.logger.Logger;
 import nl.sander758.common.network.*;
-import nl.sander758.common.network.packets.DisconnectPacketIn;
-import nl.sander758.common.network.packets.DisconnectPacketOut;
+import nl.sander758.common.network.packetsIn.DisconnectPacketIn;
+import nl.sander758.common.network.packetsIn.PingPacketIn;
+import nl.sander758.common.network.packetsOut.DisconnectPacketOut;
+import nl.sander758.common.network.packetsOut.PongPacketOut;
 import nl.sander758.gameserver.network.packetsIn.ClientRegisterPacketIn;
 import nl.sander758.gameserver.network.packetsOut.AcceptRegisterPacketOut;
 import nl.sander758.gameserver.player.Player;
@@ -68,6 +70,12 @@ public class ClientConnection extends SocketRunnable {
                         playerMovePacketIn.deserialize(deserializer);
                         player.setLocation(playerMovePacketIn.getLocation());
                         break;
+
+                    case PING_PACKET:
+                        PingPacketIn pingPacket = new PingPacketIn();
+                        pingPacket.deserialize(deserializer);
+                        Logger.debug("Ping packet received from client: " + clientId + " data: " + pingPacket.getData());
+                        trySend(new PongPacketOut(pingPacket.getData()));
                 }
             }
         } catch (IOException e) {
