@@ -54,8 +54,8 @@ public class ClientConnection extends SocketRunnable {
                         player = new Player(clientId);
                         PlayerHandler.getPlayerHandler().addPlayer(player);
                         trySend(new AcceptRegisterPacketOut(clientId));
-
                         break;
+
                     case DISCONNECT_PACKET:
                         Logger.debug("Disconnect packet received from socket: " + clientId);
                         DisconnectPacketIn disconnectPacket = new DisconnectPacketIn();
@@ -65,6 +65,7 @@ public class ClientConnection extends SocketRunnable {
                         }
                         server.removeClient(clientId, "Disconnect requested from socket");
                         break;
+
                     case PLAYER_MOVE_PACKET:
                         PlayerMovePacketIn playerMovePacketIn = new PlayerMovePacketIn();
                         playerMovePacketIn.deserialize(deserializer);
@@ -76,12 +77,12 @@ public class ClientConnection extends SocketRunnable {
                         pingPacket.deserialize(deserializer);
                         Logger.debug("Ping packet received from client: " + clientId + " data: " + pingPacket.getData());
                         trySend(new PongPacketOut(pingPacket.getData()));
+                        break;
                 }
             }
         } catch (IOException e) {
             server.removeClient(clientId, "Unexpected shutdown: " + e.getMessage());
-            Logger.error(e.getMessage());
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
@@ -98,8 +99,7 @@ public class ClientConnection extends SocketRunnable {
                 output.close();
             }
         } catch (IOException e) {
-            Logger.error(e.getMessage());
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 }

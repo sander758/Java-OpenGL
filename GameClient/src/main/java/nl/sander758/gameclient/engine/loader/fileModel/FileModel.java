@@ -4,7 +4,6 @@ import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.loader.Model;
 import nl.sander758.gameclient.engine.loader.ModelLoadingException;
 import nl.sander758.gameclient.engine.loader.VBO;
-import nl.sander758.gameclient.engine.loader.fileModel.*;
 import nl.sander758.gameclient.engine.utils.Pair;
 import org.joml.Vector3f;
 

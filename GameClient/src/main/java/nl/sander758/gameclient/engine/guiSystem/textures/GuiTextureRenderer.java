@@ -1,4 +1,4 @@
-package nl.sander758.gameclient.engine.guiSystem;
+package nl.sander758.gameclient.engine.guiSystem.textures;
 
 import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.loader.VBO;
@@ -9,12 +9,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-public class GuiRenderer {
+public class GuiTextureRenderer {
 
-    private GuiShader shader = new GuiShader();
+    private GuiTextureShader shader = new GuiTextureShader();
     private Mesh quad;
 
-    public GuiRenderer() {
+    public GuiTextureRenderer() {
         quad = generateQuad();
         shader.start();
         shader.connectTextureUnits();

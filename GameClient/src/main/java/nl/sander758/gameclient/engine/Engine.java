@@ -11,7 +11,12 @@ import nl.sander758.gameclient.engine.fbos.Attachment;
 import nl.sander758.gameclient.engine.fbos.Fbo;
 import nl.sander758.gameclient.engine.fbos.RenderBufferAttachment;
 import nl.sander758.gameclient.engine.fbos.TextureAttachment;
-import nl.sander758.gameclient.engine.guiSystem.GuiRenderer;
+import nl.sander758.gameclient.engine.guiSystem.texts.FontLoadingException;
+import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
+import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
+import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
+import nl.sander758.gameclient.engine.guiSystem.texts.rendering.TextRenderer;
+import nl.sander758.gameclient.engine.guiSystem.textures.GuiTextureRenderer;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
@@ -53,7 +58,8 @@ public class Engine {
     private StaticEntityRenderer entityRenderer;
     private TerrainRenderer terrainRenderer;
     private WaterRenderer waterRenderer;
-    private GuiRenderer guiRenderer;
+    private GuiTextureRenderer guiRenderer;
+    private TextRenderer textRenderer;
 
     public void init() {
         WindowManager.init();
@@ -74,6 +80,16 @@ public class Engine {
             WaterEntityRegistry.addEntity(new WaterEntity(new Vector2f(0, 0), 16));
             player = PlayerHandler.getPlayablePlayer();
 
+            TextFactory textFactory = TextFactory.getTextFactory();
+            GuiText text = textFactory.getText("Hello World", "verdana", 1);
+            text.setPosition(new Vector2f(-1f, -0.25f));
+
+//            GuiText text2 = textFactory.getText("F", "verdana", 1);
+//            text2.setPosition(new Vector2f(0.25f, 0.25f));
+
+            TextRegistry.addText(text);
+//            TextRegistry.addText(text2);
+
             InputManager.registerKeyboardInputListener(player);
             InputManager.registerMouseInputListener(player);
             InputManager.registerKeyboardInputListener(PingManager.getManager());
@@ -84,14 +100,15 @@ public class Engine {
             entityRenderer = new StaticEntityRenderer(projectionMatrix);
             terrainRenderer = new TerrainRenderer(projectionMatrix, 30, 4096);
             waterRenderer = new WaterRenderer(projectionMatrix);
-            guiRenderer = new GuiRenderer();
+            guiRenderer = new GuiTextureRenderer();
+            textRenderer = new TextRenderer();
 
             loop();
 
             cleanUp();
 
             WindowManager.destroy();
-        } catch (ModelNotFoundException | PlayerNotFoundException e) {
+        } catch (ModelNotFoundException | PlayerNotFoundException | FontLoadingException e) {
             Logger.error(e);
         }
     }
@@ -167,6 +184,7 @@ public class Engine {
         waterRenderer.bindTextures(reflectionFbo.getColourBuffer(0), refractionFbo.getColourBuffer(0), refractionFbo.getDepthBuffer());
         waterRenderer.render(player, light);
         guiRenderer.render();
+        textRenderer.render();
     }
 
     private void cleanUp() {
@@ -174,6 +192,7 @@ public class Engine {
         terrainRenderer.cleanUp();
         waterRenderer.cleanUp();
         guiRenderer.cleanUp();
+        textRenderer.cleanUp();
         reflectionFbo.delete();
         refractionFbo.delete();
         ModelRegistry.cleanUp();

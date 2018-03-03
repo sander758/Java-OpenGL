@@ -1,4 +1,4 @@
-package nl.sander758.gameclient.engine.guiSystem;
+package nl.sander758.gameclient.engine.guiSystem.textures;
 
 import java.util.ArrayList;
 import java.util.Collection;
