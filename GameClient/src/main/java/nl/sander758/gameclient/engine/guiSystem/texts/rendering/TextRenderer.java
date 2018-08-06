@@ -34,7 +34,7 @@ public class TextRenderer {
             shader.fontAtlas.bindTexture(font.getFontAtlas().getTextureID());
 
             for (GuiText text : texts.get(font)) {
-                shader.transformationMatrix.loadUniform(Maths.createTransformationMatrix(text.getPosition(), new Vector2f(0.2f, 0.5f)));
+                shader.transformationMatrix.loadUniform(Maths.createTransformationMatrix(text.getPosition(), new Vector2f(1f, 1f)));
 
                 Mesh mesh = text.getTextMesh();
                 mesh.prepareRender();

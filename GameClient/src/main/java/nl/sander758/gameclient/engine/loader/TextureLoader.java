@@ -4,7 +4,6 @@ import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
-import sun.nio.ch.IOUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;

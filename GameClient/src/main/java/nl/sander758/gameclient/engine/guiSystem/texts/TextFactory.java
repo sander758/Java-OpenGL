@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine.guiSystem.texts;
 
+import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.loader.VBO;
 
@@ -14,6 +15,8 @@ import java.util.List;
 public class TextFactory {
 
     private List<FontType> fonts = new ArrayList<>();
+
+    public static final int SPACE_ASCII = 32;
 
     private static TextFactory textFactory = new TextFactory();
 
@@ -34,6 +37,7 @@ public class TextFactory {
     private GuiText createGuiText(String text, FontType font, float fontSize) {
         Mesh mesh = new Mesh();
 
+        float aspectRatio = (float) WindowManager.getWidth() / (float) WindowManager.getHeight();
 
         List<Float> vertices = new ArrayList<>();
         List<Float> textureCoordinates = new ArrayList<>();
@@ -46,31 +50,37 @@ public class TextFactory {
         for (char character : characters) {
             int ascii = (int) character;
 
+            if (ascii == SPACE_ASCII) {
+                cursor += font.getSpaceWidth();
+            }
+
             FontCharacter fontCharacter = font.getCharacter(ascii);
 
             if (fontCharacter == null) {
                 continue;
             }
 
-            float topLeftX = cursor;
-            float topLeftY = 1;
+            float topLeftX = cursor / 512f;
+            float topLeftY = fontCharacter.getyTextureSize() / 512f;
             float topLeftXTexture = fontCharacter.getxTextureCoordinate() / 512f;
             float topLeftYTexture = fontCharacter.getyTextureCoordinate() / 512f;
 
-            float bottomLeftX = cursor;
+            float bottomLeftX = cursor / 512f;
             float bottomLeftY = 0;
             float bottomLeftXTexture = fontCharacter.getxTextureCoordinate() / 512f;
             float bottomLeftYTexture = (fontCharacter.getyTextureCoordinate() + fontCharacter.getyTextureSize()) / 512f;
 
-            float topRightX = cursor + 1;
-            float topRightY = 1;
+            float topRightX = (cursor + fontCharacter.getxTextureSize()) / 512f;
+            float topRightY = fontCharacter.getyTextureSize() / 512f;
             float topRightXTexture = (fontCharacter.getxTextureCoordinate() + fontCharacter.getxTextureSize()) / 512f;
             float topRightYTexture = fontCharacter.getyTextureCoordinate() / 512f;
 
-            float bottomRightX = cursor + 1;
+            float bottomRightX = (cursor + fontCharacter.getxTextureSize()) / 512f;
             float bottomRightY = 0;
             float bottomRightXTexture = (fontCharacter.getxTextureCoordinate() + fontCharacter.getxTextureSize()) / 512f;
             float bottomRightYTexture = (fontCharacter.getyTextureCoordinate() + fontCharacter.getyTextureSize()) / 512f;
+
+            cursor += fontCharacter.getxTextureSize();
 
             vertices.add(topLeftX);
             vertices.add(topLeftY);
@@ -107,9 +117,6 @@ public class TextFactory {
             indices.add(topRightIndex);
             indices.add(bottomLeftIndex);
             indices.add(bottomRightIndex);
-
-
-            cursor++;
         }
 
         float[] verticesArray = new float[vertices.size()];

@@ -20,6 +20,8 @@ public class FontType {
     private int imageWidth;
     private int imageHeight;
 
+    private int lineHeight;
+
     private HashMap<Integer, FontCharacter> characters = new HashMap<>();
 
     public FontType(String name, List<String> content) {
@@ -28,8 +30,8 @@ public class FontType {
 
         fontAtlas = TextureLoader.getTextureLoader().loadTexture(name);
 
-        loadPadding();
-        loadImageSize();
+        loadInfo();
+        loadCommon();
         loadCharacterData();
     }
 
@@ -57,7 +59,7 @@ public class FontType {
         return imageHeight;
     }
 
-    private void loadPadding() {
+    private void loadInfo() {
         for (String line : content) {
             if (!line.startsWith("info ")) {
                 continue;
@@ -65,7 +67,11 @@ public class FontType {
             String[] splitLine = line.split(" ");
             for (String item : splitLine) {
                 String[] keyValue = item.split("=");
-                if (keyValue.length == 2 && keyValue[0].equalsIgnoreCase("padding")) {
+                if (keyValue.length != 2) {
+                    continue;
+                }
+
+                if (keyValue[0].equalsIgnoreCase("padding")) {
                     String[] padding = keyValue[1].split(",");
                     if (padding.length == 4) {
                         this.padding = new int[4];
@@ -80,7 +86,7 @@ public class FontType {
         }
     }
 
-    private void loadImageSize() {
+    private void loadCommon() {
         for (String line : content) {
             if (!line.startsWith("common ")) {
                 continue;
@@ -96,6 +102,8 @@ public class FontType {
                     imageHeight = Integer.parseInt(keyValue[1]);
                 } else if (keyValue[0].equalsIgnoreCase("scaleW")) {
                     imageWidth = Integer.parseInt(keyValue[1]);
+                } else if (keyValue[0].equalsIgnoreCase("lineHeight")) {
+                    lineHeight = Integer.parseInt(keyValue[1]);
                 }
             }
         }
@@ -122,7 +130,7 @@ public class FontType {
         if (!validateCharacterData(characterData)) {
             return;
         }
-        if (characterData.get("id") == 32) {
+        if (characterData.get("id") == TextFactory.SPACE_ASCII) {
             spaceWidth = characterData.get("xadvance");
             return;
         }
