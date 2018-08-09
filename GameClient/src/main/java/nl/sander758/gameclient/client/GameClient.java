@@ -5,6 +5,7 @@ import nl.sander758.gameclient.engine.loader.fileModel.FileModel;
 import nl.sander758.gameclient.engine.loader.ModelRegistry;
 import nl.sander758.gameclient.engine.waterSystem.WaterModel;
 import nl.sander758.gameclient.network.SocketClient;
+import org.lwjgl.opengl.GL11;
 
 public class GameClient implements Runnable {
 
@@ -14,6 +15,8 @@ public class GameClient implements Runnable {
         // load config file or something and pass that to the engine
         Engine engine = new Engine();
         engine.init();
+
+        System.out.println(GL11.glGetString(GL11.GL_VERSION));
 
         registerModels();
 

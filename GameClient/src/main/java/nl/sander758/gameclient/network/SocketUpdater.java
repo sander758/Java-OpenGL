@@ -21,6 +21,7 @@ public class SocketUpdater extends SocketRunnable {
     public void run() {
         float secondsPerUpdate = 1f / TICKS_PER_SECOND;
         Logger.info("Seconds per update: " + secondsPerUpdate);
+        Logger.info("Updates per second: " + TICKS_PER_SECOND);
 
         while (client.isRunning()) {
             try {

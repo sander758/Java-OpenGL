@@ -81,8 +81,8 @@ public class Engine {
             player = PlayerHandler.getPlayablePlayer();
 
             TextFactory textFactory = TextFactory.getTextFactory();
-            GuiText text = textFactory.getText("Hello World", "verdana", 1);
-            text.setPosition(new Vector2f(-1f, -0.25f));
+            GuiText text = textFactory.getText("Hello World", "verdana", 2);
+            text.setPosition(new Vector2f(-0.5f, 0f));
 
 //            GuiText text2 = textFactory.getText("F", "verdana", 1);
 //            text2.setPosition(new Vector2f(0.25f, 0.25f));

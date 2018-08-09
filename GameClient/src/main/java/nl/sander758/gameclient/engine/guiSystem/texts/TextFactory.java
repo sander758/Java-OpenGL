@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine.guiSystem.texts;
 
+import nl.sander758.common.logger.Logger;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.loader.Mesh;
 import nl.sander758.gameclient.engine.loader.VBO;
@@ -48,10 +49,11 @@ public class TextFactory {
 
         char[] characters = text.toCharArray();
         for (char character : characters) {
+            System.out.println(character);
             int ascii = (int) character;
 
             if (ascii == SPACE_ASCII) {
-                cursor += font.getSpaceWidth();
+                cursor += font.getSpaceWidth() / aspectRatio;
             }
 
             FontCharacter fontCharacter = font.getCharacter(ascii);
@@ -70,17 +72,20 @@ public class TextFactory {
             float bottomLeftXTexture = fontCharacter.getxTextureCoordinate() / 512f;
             float bottomLeftYTexture = (fontCharacter.getyTextureCoordinate() + fontCharacter.getyTextureSize()) / 512f;
 
-            float topRightX = (cursor + fontCharacter.getxTextureSize()) / 512f;
+            float topRightX = (cursor + (fontCharacter.getxTextureSize() / aspectRatio)) / 512f;
+//            float topRightX = (cursor + (fontCharacter.getxTextureSize())) / 512f;
             float topRightY = fontCharacter.getyTextureSize() / 512f;
             float topRightXTexture = (fontCharacter.getxTextureCoordinate() + fontCharacter.getxTextureSize()) / 512f;
             float topRightYTexture = fontCharacter.getyTextureCoordinate() / 512f;
 
-            float bottomRightX = (cursor + fontCharacter.getxTextureSize()) / 512f;
+            float bottomRightX = (cursor + (fontCharacter.getxTextureSize() / aspectRatio)) / 512f;
+//            float bottomRightX = (cursor + (fontCharacter.getxTextureSize())) / 512f;
             float bottomRightY = 0;
             float bottomRightXTexture = (fontCharacter.getxTextureCoordinate() + fontCharacter.getxTextureSize()) / 512f;
             float bottomRightYTexture = (fontCharacter.getyTextureCoordinate() + fontCharacter.getyTextureSize()) / 512f;
 
-            cursor += fontCharacter.getxTextureSize();
+            cursor += fontCharacter.getxTextureSize() / aspectRatio;
+//            cursor += fontCharacter.getxTextureSize();
 
             vertices.add(topLeftX);
             vertices.add(topLeftY);
@@ -155,6 +160,8 @@ public class TextFactory {
         ClassLoader loader = TextFactory.class.getClassLoader();
         List<String> lines = new ArrayList<>();
 
+        Logger.debug("Loading font data for font: " + font);
+
         InputStream inputStream = null;
         BufferedReader reader = null;
         try {
@@ -185,6 +192,9 @@ public class TextFactory {
         }
         FontType fontType = new FontType(font, lines);
         fonts.add(fontType);
+
+        Logger.debug("Done with font loading for font: " + font);
+
         return fontType;
     }
 
