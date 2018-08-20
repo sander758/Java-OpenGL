@@ -6,7 +6,7 @@ import nl.sander758.gameclient.engine.loader.TextureLoader;
 import java.util.HashMap;
 import java.util.List;
 
-public class FontType {
+public class FontStyle {
 
     private String name;
     private Texture fontAtlas;
@@ -24,7 +24,7 @@ public class FontType {
 
     private HashMap<Integer, FontCharacter> characters = new HashMap<>();
 
-    public FontType(String name, List<String> content) {
+    public FontStyle(String name, List<String> content) {
         this.name = name;
         this.content = content;
 
@@ -130,11 +130,18 @@ public class FontType {
         if (!validateCharacterData(characterData)) {
             return;
         }
-        if (characterData.get("id") == TextFactory.SPACE_ASCII) {
+        if (characterData.get("id") == TextFactory.ASCII_SPACE) {
             spaceWidth = characterData.get("xadvance");
             return;
         }
-        characters.put(characterData.get("id"), new FontCharacter(characterData.get("id"), characterData.get("x"), characterData.get("y"), characterData.get("width"), characterData.get("height")));
+        characters.put(characterData.get("id"), new FontCharacter(
+                characterData.get("id"),
+                characterData.get("x"),
+                characterData.get("y"),
+                characterData.get("width"),
+                characterData.get("height"),
+                characterData.get("xadvance")
+        ));
     }
 
     private boolean validateCharacterData(HashMap<String, Integer> characterData) {

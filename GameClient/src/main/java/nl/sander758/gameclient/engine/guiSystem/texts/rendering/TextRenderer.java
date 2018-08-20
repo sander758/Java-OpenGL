@@ -1,6 +1,6 @@
 package nl.sander758.gameclient.engine.guiSystem.texts.rendering;
 
-import nl.sander758.gameclient.engine.guiSystem.texts.FontType;
+import nl.sander758.gameclient.engine.guiSystem.texts.FontStyle;
 import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
 import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
 import nl.sander758.gameclient.engine.loader.Mesh;
@@ -23,20 +23,20 @@ public class TextRenderer {
     }
 
     public void render() {
-        HashMap<FontType, List<GuiText>> texts = TextRegistry.getTexts();
+        HashMap<FontStyle, List<GuiText>> texts = TextRegistry.getTexts();
 
         shader.start();
 
         OpenGlUtils.enableDepthTesting(false);
         OpenGlUtils.enableAlphaBlending();
 
-        for (FontType font : texts.keySet()) {
+        for (FontStyle font : texts.keySet()) {
             shader.fontAtlas.bindTexture(font.getFontAtlas().getTextureID());
 
             for (GuiText text : texts.get(font)) {
                 shader.transformationMatrix.loadUniform(Maths.createTransformationMatrix(text.getPosition(), new Vector2f(1f, 1f)));
 
-                Mesh mesh = text.getTextMesh();
+                Mesh mesh = text.getMesh();
                 mesh.prepareRender();
 
                 GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);

@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine;
 
+import com.sun.javafx.tk.FontLoader;
 import nl.sander758.common.logger.Logger;
 import nl.sander758.gameclient.client.entities.staticEntities.SimpleTree;
 import nl.sander758.gameclient.client.entities.staticEntities.Velociraptor;
@@ -11,10 +12,7 @@ import nl.sander758.gameclient.engine.fbos.Attachment;
 import nl.sander758.gameclient.engine.fbos.Fbo;
 import nl.sander758.gameclient.engine.fbos.RenderBufferAttachment;
 import nl.sander758.gameclient.engine.fbos.TextureAttachment;
-import nl.sander758.gameclient.engine.guiSystem.texts.FontLoadingException;
-import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
-import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
-import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
+import nl.sander758.gameclient.engine.guiSystem.texts.*;
 import nl.sander758.gameclient.engine.guiSystem.texts.rendering.TextRenderer;
 import nl.sander758.gameclient.engine.guiSystem.textures.GuiTextureRenderer;
 import nl.sander758.gameclient.engine.input.InputManager;
@@ -80,14 +78,21 @@ public class Engine {
             WaterEntityRegistry.addEntity(new WaterEntity(new Vector2f(0, 0), 16));
             player = PlayerHandler.getPlayablePlayer();
 
+
             TextFactory textFactory = TextFactory.getTextFactory();
-            GuiText text = textFactory.getText("Hello World", "verdana", 2);
-            text.setPosition(new Vector2f(-0.5f, 0f));
+
+
+            textFactory.addFontStyle("verdana");
+            FontStyle verdana = textFactory.getFontStyle("verdana");
+            GuiText text = new GuiText("Hello World with a very long text but i dont know if this i gonna work", verdana, 1, 0.5f, new Vector2f(0, 0));
+
+//            GuiText text = textFactory.getText("Hello World", "verdana", 2);
+//            text.setPosition(new Vector2f(-0.5f, 0f));
 
 //            GuiText text2 = textFactory.getText("F", "verdana", 1);
 //            text2.setPosition(new Vector2f(0.25f, 0.25f));
 
-            TextRegistry.addText(text);
+//            TextRegistry.addText(text);
 //            TextRegistry.addText(text2);
 
             InputManager.registerKeyboardInputListener(player);

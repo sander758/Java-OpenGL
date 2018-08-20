@@ -2,6 +2,8 @@ package nl.sander758.gameclient.engine.guiSystem.texts;
 
 public class FontCharacter {
 
+    private String character;
+
     private int id;
 
     private int xTextureCoordinate;
@@ -10,12 +12,16 @@ public class FontCharacter {
     private int xTextureSize;
     private int yTextureSize;
 
-    public FontCharacter(int id, int xTextureCoordinate, int yTextureCoordinate, int xTextureSize, int yTextureSize) {
+    private int xAdvance;
+
+    public FontCharacter(int id, int xTextureCoordinate, int yTextureCoordinate, int xTextureSize, int yTextureSize, int xAdvance) {
         this.id = id;
+        this.character = Character.toString((char) id);
         this.xTextureCoordinate = xTextureCoordinate;
         this.yTextureCoordinate = yTextureCoordinate;
         this.xTextureSize = xTextureSize;
         this.yTextureSize = yTextureSize;
+        this.xAdvance = xAdvance;
     }
 
     public int getId() {
@@ -36,5 +42,9 @@ public class FontCharacter {
 
     public int getyTextureSize() {
         return yTextureSize;
+    }
+
+    public int getxAdvance() {
+        return xAdvance;
     }
 }
