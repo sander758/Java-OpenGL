@@ -1,8 +1,10 @@
 package nl.sander758.gameclient.engine.guiSystem.texts;
 
+import com.google.common.collect.Lists;
 import nl.sander758.common.logger.Logger;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.loader.Mesh;
+import nl.sander758.gameclient.engine.loader.VBO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -128,9 +130,124 @@ public class TextFactory {
     public Mesh generateGuiTextMesh(GuiText text) {
         Mesh mesh = new Mesh();
 
-//        text.get
+        int cursorX = 0;
+        int cursorY = 0;
+        int vertexCount = 0;
+
+        List<Float> vertices = new ArrayList<>();
+        List<Float> textureCoordinates = new ArrayList<>();
+        List<Integer> indices = new ArrayList<>();
+
+        FontStyle fontStyle = text.getFontStyle();
+
+        float aspectRatio = (float) WindowManager.getWidth() / (float) WindowManager.getHeight();
+
+        for (Line line : Lists.reverse(text.getLines())) {
+            for (Word word : line.getWords()) {
+                for (FontCharacter character : word.getCharacters()) {
+                    addFontCharacter(vertices, textureCoordinates, indices, character, cursorX, cursorY, vertexCount);
+                    cursorX += character.getxTextureSize();
+                    vertexCount += 4;
+                }
+                cursorX += fontStyle.getSpaceWidth();
+            }
+            cursorX = 0;
+            cursorY += fontStyle.getLineHeight();
+        }
+
+        float[] verticesArray = new float[vertices.size()];
+        float[] textureCoordinatesArray = new float[textureCoordinates.size()];
+        int[] indicesArray = new int[indices.size()];
+
+        int pointer = 0;
+        for (Float vertex : vertices) {
+            verticesArray[pointer] = vertex;
+            pointer++;
+        }
+
+        pointer = 0;
+        for (Float coordinate : textureCoordinates) {
+            textureCoordinatesArray[pointer] = coordinate;
+            pointer++;
+        }
+
+        pointer = 0;
+        for (Integer index : indices) {
+            indicesArray[pointer] = index;
+            pointer++;
+        }
+
+        mesh.bindVAO();
+        mesh.attachVBO(new VBO(0, 2, verticesArray));
+        mesh.attachVBO(new VBO(1, 2, textureCoordinatesArray));
+        mesh.attachVBO(new VBO(indicesArray));
+        mesh.unbindVAO();
+        mesh.setVertexCount(indicesArray.length);
 
         return mesh;
+    }
+
+    private void addFontCharacter(List<Float> vertices, List<Float> textureCoordinates, List<Integer> indices, FontCharacter character, int cursorX, int cursorY, int vertexCount) {
+        float topLeftX = cursorX / 512f;
+        float topLeftY = (character.getyTextureSize() + cursorY) / 512f;
+        float topLeftXTexture = character.getxTextureCoordinate() / 512f;
+        float topLeftYTexture = character.getyTextureCoordinate() / 512f;
+
+        float bottomLeftX = cursorX / 512f;
+        float bottomLeftY = cursorY / 512f;
+        float bottomLeftXTexture = character.getxTextureCoordinate() / 512f;
+        float bottomLeftYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / 512f;
+
+//        float topRightX = (cursorX + (character.getxTextureSize() / aspectRatio)) / 512f;
+        float topRightX = (cursorX + character.getxTextureSize()) / 512f;
+        float topRightY = (character.getyTextureSize() + cursorY) / 512f;
+        float topRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / 512f;
+        float topRightYTexture = character.getyTextureCoordinate() / 512f;
+
+//        float bottomRightX = (cursorX + (character.getxTextureSize() / aspectRatio)) / 512f;
+        float bottomRightX = (cursorX + character.getxTextureSize()) / 512f;
+        float bottomRightY = cursorY / 512f;
+        float bottomRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / 512f;
+        float bottomRightYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / 512f;
+
+//        cursor += character.getxTextureSize() / aspectRatio;
+//        cursor += fontCharacter.getxTextureSize();
+
+        vertices.add(topLeftX);
+        vertices.add(topLeftY);
+        textureCoordinates.add(topLeftXTexture);
+        textureCoordinates.add(topLeftYTexture);
+        int topLeftIndex = vertexCount;
+        vertexCount++;
+
+        vertices.add(bottomLeftX);
+        vertices.add(bottomLeftY);
+        textureCoordinates.add(bottomLeftXTexture);
+        textureCoordinates.add(bottomLeftYTexture);
+        int bottomLeftIndex = vertexCount;
+        vertexCount++;
+
+        vertices.add(topRightX);
+        vertices.add(topRightY);
+        textureCoordinates.add(topRightXTexture);
+        textureCoordinates.add(topRightYTexture);
+        int topRightIndex = vertexCount;
+        vertexCount++;
+
+        vertices.add(bottomRightX);
+        vertices.add(bottomRightY);
+        textureCoordinates.add(bottomRightXTexture);
+        textureCoordinates.add(bottomRightYTexture);
+        int bottomRightIndex = vertexCount;
+//        vertexCount++;
+
+        indices.add(topLeftIndex);
+        indices.add(bottomLeftIndex);
+        indices.add(topRightIndex);
+
+        indices.add(topRightIndex);
+        indices.add(bottomLeftIndex);
+        indices.add(bottomRightIndex);
     }
 
     /**

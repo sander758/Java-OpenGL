@@ -53,6 +53,10 @@ public class Word {
         return true;
     }
 
+    public List<FontCharacter> getCharacters() {
+        return characters;
+    }
+
     /**
      * Get the first characters of this word within a certain width.
      *

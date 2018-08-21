@@ -35,6 +35,7 @@ public class GuiText {
         this.lineWidth = lineWidth;
         this.position = position;
         this.lines = TextFactory.getTextFactory().buildGuiTextLines(this);
+        this.mesh = TextFactory.getTextFactory().generateGuiTextMesh(this);
     }
 
     public FontStyle getFontStyle() {
@@ -67,9 +68,5 @@ public class GuiText {
 
     public List<Line> getLines() {
         return lines;
-    }
-
-    public void generateMesh() {
-        mesh = TextFactory.getTextFactory().generateGuiTextMesh(this);
     }
 }

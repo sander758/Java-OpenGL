@@ -59,6 +59,10 @@ public class FontStyle {
         return imageHeight;
     }
 
+    public int getLineHeight() {
+        return lineHeight;
+    }
+
     private void loadInfo() {
         for (String line : content) {
             if (!line.startsWith("info ")) {

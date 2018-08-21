@@ -41,4 +41,7 @@ public class Line {
         return word.getCurrentWidth() < getFreeLineSpace();
     }
 
+    public List<Word> getWords() {
+        return words;
+    }
 }

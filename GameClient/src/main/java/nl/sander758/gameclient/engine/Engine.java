@@ -1,6 +1,5 @@
 package nl.sander758.gameclient.engine;
 
-import com.sun.javafx.tk.FontLoader;
 import nl.sander758.common.logger.Logger;
 import nl.sander758.gameclient.client.entities.staticEntities.SimpleTree;
 import nl.sander758.gameclient.client.entities.staticEntities.Velociraptor;
@@ -84,7 +83,7 @@ public class Engine {
 
             textFactory.addFontStyle("verdana");
             FontStyle verdana = textFactory.getFontStyle("verdana");
-            GuiText text = new GuiText("Hello World with a very long text but i dont know if this i gonna work", verdana, 1, 0.5f, new Vector2f(0, 0));
+            GuiText text = new GuiText("Hello World with a very long text but i dont know if this is gonna work", verdana, 1, 0.5f, new Vector2f(-0.5f, 0));
 
 //            GuiText text = textFactory.getText("Hello World", "verdana", 2);
 //            text.setPosition(new Vector2f(-0.5f, 0f));
@@ -92,7 +91,7 @@ public class Engine {
 //            GuiText text2 = textFactory.getText("F", "verdana", 1);
 //            text2.setPosition(new Vector2f(0.25f, 0.25f));
 
-//            TextRegistry.addText(text);
+            TextRegistry.addText(text);
 //            TextRegistry.addText(text2);
 
             InputManager.registerKeyboardInputListener(player);

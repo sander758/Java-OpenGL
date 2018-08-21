@@ -11,5 +11,6 @@ subprojects {
         testCompile group: 'junit', name: 'junit', version: '4.12'
 
         compile "org.joml:joml:${jomlVersion}"
+        compile 'com.google.guava:guava:26.0-jre'
     }
 }
