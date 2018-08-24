@@ -45,7 +45,7 @@ public class Word {
      * @return whether the character could be added to the word and keep the word within the maxLineWidth.
      */
     public boolean attemptToAddCharacter(FontCharacter character) {
-        if (currentWidth + character.getxAdvance() > maxLineWidth) {
+        if ((currentWidth + character.getxAdvance()) > maxLineWidth) {
             return false;
         }
         characters.add(character);
@@ -67,7 +67,7 @@ public class Word {
         List<FontCharacter> charactersWithin = new ArrayList<>();
         int cursor = 0;
         for (FontCharacter character : characters) {
-            if (cursor + character.getxAdvance() > width) {
+            if ((cursor + character.getxAdvance()) > width) {
                 break;
             }
             cursor += character.getxAdvance();
@@ -96,7 +96,7 @@ public class Word {
     }
 
     /**
-     * Get the width of the current characters in this word.
+     * Get the width of the current characters in this word without aspect ratio calculation.
      *
      * @return The width in pixels.
      */

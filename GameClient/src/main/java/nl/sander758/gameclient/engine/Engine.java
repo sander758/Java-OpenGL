@@ -83,16 +83,13 @@ public class Engine {
 
             textFactory.addFontStyle("verdana");
             FontStyle verdana = textFactory.getFontStyle("verdana");
-            GuiText text = new GuiText("Hello World with a very long text but i dont know if this is gonna work", verdana, 1, 0.5f, new Vector2f(-0.5f, 0));
-
-//            GuiText text = textFactory.getText("Hello World", "verdana", 2);
-//            text.setPosition(new Vector2f(-0.5f, 0f));
-
-//            GuiText text2 = textFactory.getText("F", "verdana", 1);
-//            text2.setPosition(new Vector2f(0.25f, 0.25f));
+            GuiText text = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 1, 0.5f, new Vector2f(-1f, 1f));
+            GuiText text2 = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 2, 0.5f, new Vector2f(-1f, 0));
+            GuiText text3 = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 0.5f, 0.5f, new Vector2f(0, 1f));
 
             TextRegistry.addText(text);
-//            TextRegistry.addText(text2);
+            TextRegistry.addText(text2);
+            TextRegistry.addText(text3);
 
             InputManager.registerKeyboardInputListener(player);
             InputManager.registerMouseInputListener(player);

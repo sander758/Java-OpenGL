@@ -144,6 +144,8 @@ public class FontStyle {
                 characterData.get("y"),
                 characterData.get("width"),
                 characterData.get("height"),
+                characterData.get("xoffset"),
+                characterData.get("yoffset"),
                 characterData.get("xadvance")
         ));
     }

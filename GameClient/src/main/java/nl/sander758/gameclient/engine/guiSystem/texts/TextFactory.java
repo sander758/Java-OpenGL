@@ -50,6 +50,7 @@ public class TextFactory {
         int screenWidth = WindowManager.getWidth();
 
         int lineWidth = (int) (text.getLineWidth() * (float) screenWidth);
+        System.out.println(lineWidth);
 
         FontStyle fontStyle = text.getFontStyle();
 
@@ -139,20 +140,22 @@ public class TextFactory {
         List<Integer> indices = new ArrayList<>();
 
         FontStyle fontStyle = text.getFontStyle();
+        float fontSize = text.getFontSize();
 
-        float aspectRatio = (float) WindowManager.getWidth() / (float) WindowManager.getHeight();
+        float screenWidth = (float) WindowManager.getWidth();
+        float screenHeight =  (float) WindowManager.getHeight();
 
-        for (Line line : Lists.reverse(text.getLines())) {
+        for (Line line : text.getLines()) {
             for (Word word : line.getWords()) {
                 for (FontCharacter character : word.getCharacters()) {
-                    addFontCharacter(vertices, textureCoordinates, indices, character, cursorX, cursorY, vertexCount);
-                    cursorX += character.getxTextureSize();
+                    addFontCharacter(vertices, textureCoordinates, indices, character, fontSize, screenWidth, screenHeight, cursorX, cursorY, vertexCount);
+                    cursorX += (character.getxAdvance());
                     vertexCount += 4;
                 }
-                cursorX += fontStyle.getSpaceWidth();
+                cursorX += (fontStyle.getSpaceWidth());
             }
             cursorX = 0;
-            cursorY += fontStyle.getLineHeight();
+            cursorY -= (fontStyle.getLineHeight());
         }
 
         float[] verticesArray = new float[vertices.size()];
@@ -187,28 +190,42 @@ public class TextFactory {
         return mesh;
     }
 
-    private void addFontCharacter(List<Float> vertices, List<Float> textureCoordinates, List<Integer> indices, FontCharacter character, int cursorX, int cursorY, int vertexCount) {
-        float topLeftX = cursorX / 512f;
-        float topLeftY = (character.getyTextureSize() + cursorY) / 512f;
-        float topLeftXTexture = character.getxTextureCoordinate() / 512f;
-        float topLeftYTexture = character.getyTextureCoordinate() / 512f;
+    private void addFontCharacter(
+            List<Float> vertices,
+            List<Float> textureCoordinates,
+            List<Integer> indices,
+            FontCharacter character,
+            float fontSize,
+            float screenWidth,
+            float screenHeight,
+            int cursorX,
+            int cursorY,
+            int vertexCount
+    ) {
+        float size = 512f;
 
-        float bottomLeftX = cursorX / 512f;
-        float bottomLeftY = cursorY / 512f;
-        float bottomLeftXTexture = character.getxTextureCoordinate() / 512f;
-        float bottomLeftYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / 512f;
+        screenWidth = screenWidth / 2;
+        screenHeight = screenHeight / 2;
 
-//        float topRightX = (cursorX + (character.getxTextureSize() / aspectRatio)) / 512f;
-        float topRightX = (cursorX + character.getxTextureSize()) / 512f;
-        float topRightY = (character.getyTextureSize() + cursorY) / 512f;
-        float topRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / 512f;
-        float topRightYTexture = character.getyTextureCoordinate() / 512f;
+        float topLeftX = cursorX / screenWidth * fontSize;
+        float topLeftY = (cursorY - character.getyOffset()) / screenHeight * fontSize;
+        float topLeftXTexture = character.getxTextureCoordinate() / size;
+        float topLeftYTexture = character.getyTextureCoordinate() / size;
 
-//        float bottomRightX = (cursorX + (character.getxTextureSize() / aspectRatio)) / 512f;
-        float bottomRightX = (cursorX + character.getxTextureSize()) / 512f;
-        float bottomRightY = cursorY / 512f;
-        float bottomRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / 512f;
-        float bottomRightYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / 512f;
+        float bottomLeftX = cursorX / screenWidth * fontSize;
+        float bottomLeftY = (cursorY - character.getyOffset() - character.getyTextureSize()) / screenHeight * fontSize;
+        float bottomLeftXTexture = character.getxTextureCoordinate() / size;
+        float bottomLeftYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / size;
+
+        float topRightX = (cursorX + character.getxTextureSize()) / screenWidth * fontSize;
+        float topRightY = (cursorY - character.getyOffset()) / screenHeight * fontSize;
+        float topRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / size;
+        float topRightYTexture = character.getyTextureCoordinate() / size;
+
+        float bottomRightX = (cursorX + character.getxTextureSize()) / screenWidth * fontSize;
+        float bottomRightY = (cursorY - character.getyOffset() - character.getyTextureSize()) / screenHeight * fontSize;
+        float bottomRightXTexture = (character.getxTextureCoordinate() + character.getxTextureSize()) / size;
+        float bottomRightYTexture = (character.getyTextureCoordinate() + character.getyTextureSize()) / size;
 
 //        cursor += character.getxTextureSize() / aspectRatio;
 //        cursor += fontCharacter.getxTextureSize();
@@ -239,7 +256,6 @@ public class TextFactory {
         textureCoordinates.add(bottomRightXTexture);
         textureCoordinates.add(bottomRightYTexture);
         int bottomRightIndex = vertexCount;
-//        vertexCount++;
 
         indices.add(topLeftIndex);
         indices.add(bottomLeftIndex);
