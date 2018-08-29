@@ -11,6 +11,7 @@ import nl.sander758.gameclient.engine.fbos.Attachment;
 import nl.sander758.gameclient.engine.fbos.Fbo;
 import nl.sander758.gameclient.engine.fbos.RenderBufferAttachment;
 import nl.sander758.gameclient.engine.fbos.TextureAttachment;
+import nl.sander758.gameclient.engine.guiSystem.chat.ChatManager;
 import nl.sander758.gameclient.engine.guiSystem.texts.*;
 import nl.sander758.gameclient.engine.guiSystem.texts.rendering.TextRenderer;
 import nl.sander758.gameclient.engine.guiSystem.textures.GuiTextureRenderer;
@@ -83,13 +84,16 @@ public class Engine {
 
             textFactory.addFontStyle("verdana");
             FontStyle verdana = textFactory.getFontStyle("verdana");
-            GuiText text = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 1, 0.5f, new Vector2f(-1f, 1f));
-            GuiText text2 = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 2, 0.5f, new Vector2f(-1f, 0));
-            GuiText text3 = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 0.5f, 0.5f, new Vector2f(0, 1f));
+//            GuiText text = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 1, 0.5f, new Vector2f(-1f, 1f));
+//            GuiText text2 = new GuiText("the quic k brown fox jumps over the lazy dog", verdana, 2, 0.5f, new Vector2f(-1f, 0));
+            GuiText text3 = new GuiText("the quick brown fox jumps over the lazy dog fsda fdsafdsa fds fdsa fdsa d fdsa fdsa d fdsa", verdana, 0.35f, 0.5f, new Vector2f(0, 1f));
+            System.out.println(text3.getHeight());
 
-            TextRegistry.addText(text);
-            TextRegistry.addText(text2);
+//            TextRegistry.addText(text);
+//            TextRegistry.addText(text2);
             TextRegistry.addText(text3);
+
+            ChatManager.initialize();
 
             InputManager.registerKeyboardInputListener(player);
             InputManager.registerMouseInputListener(player);

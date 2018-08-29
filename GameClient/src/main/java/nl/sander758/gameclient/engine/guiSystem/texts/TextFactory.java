@@ -53,10 +53,11 @@ public class TextFactory {
         System.out.println(lineWidth);
 
         FontStyle fontStyle = text.getFontStyle();
+        float fontSize = text.getFontSize();
 
         List<Line> lines = new ArrayList<>();
-        Line currentLine = new Line(lineWidth, fontStyle.getSpaceWidth());
-        Word currentWord = new Word(lineWidth);
+        Line currentLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
+        Word currentWord = new Word(lineWidth, fontSize);
 
         for (char character : characters) {
             int ascii = (int) character;
@@ -72,11 +73,10 @@ public class TextFactory {
                 if (!currentLine.attemptToAddWord(currentWord)) {
                     // The word couldn't be added to the current line, create a new line and add the word to that line.
                     lines.add(currentLine);
-                    currentLine = new Line(lineWidth, fontStyle.getSpaceWidth());
+                    currentLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
                     currentLine.attemptToAddWord(currentWord);
                 }
-                currentWord = new Word(lineWidth);
-
+                currentWord = new Word(lineWidth, fontSize);
             } else {
                 // Try to add the character to the current word, if the word is longer than the line width it should
                 // go back and check which part of the word fits on the current line and add that part to the current line.
@@ -95,30 +95,30 @@ public class TextFactory {
                         // There is still space on the current line.
                         List<FontCharacter> freeLineWidthCharacters = currentWord.getCharactersWithin(freeLineWidth);
                         if (freeLineWidthCharacters.size() > 0) {
-                            currentLine.attemptToAddWord(new Word(lineWidth, freeLineWidthCharacters));
+                            currentLine.attemptToAddWord(new Word(lineWidth, fontSize, freeLineWidthCharacters));
                         }
                         lines.add(currentLine);
-                        currentLine = new Line(lineWidth, fontStyle.getSpaceWidth());
+                        currentLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
                         List<FontCharacter> nextLineCharacters = currentWord.getCharactersOutside(freeLineWidth);
                         if (nextLineCharacters.size() > 0) {
-                            currentLine.attemptToAddWord(new Word(lineWidth, nextLineCharacters));
+                            currentLine.attemptToAddWord(new Word(lineWidth, fontSize, nextLineCharacters));
                         }
                     } else {
                         // There is no available space on the current line and add the current word word to a complete new line.
                         // Also add the current line, the question is, why isn't this line added yet?
                         lines.add(currentLine);
-                        Line singleWordLine = new Line(lineWidth, fontStyle.getSpaceWidth());
+                        Line singleWordLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
                         singleWordLine.attemptToAddWord(currentWord);
                         lines.add(currentLine);
-                        currentLine = new Line(lineWidth, fontStyle.getSpaceWidth());
-                        currentWord = new Word(lineWidth);
+                        currentLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
+                        currentWord = new Word(lineWidth, fontSize);
                     }
                 }
             }
         }
         if (!currentLine.attemptToAddWord(currentWord)) {
             lines.add(currentLine);
-            currentLine = new Line(lineWidth, fontStyle.getSpaceWidth());
+            currentLine = new Line(lineWidth, fontSize, fontStyle.getSpaceWidth());
             currentLine.attemptToAddWord(currentWord);
             lines.add(currentLine);
         } else {

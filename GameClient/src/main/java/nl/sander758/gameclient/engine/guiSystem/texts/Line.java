@@ -9,10 +9,13 @@ public class Line {
 
     private int maxLineWidth;
 
+    private float fontSize;
+
     private int spaceWidth;
 
-    public Line(int maxLineWidth, int spaceWidth) {
+    public Line(int maxLineWidth, float fontSize, int spaceWidth) {
         this.maxLineWidth = maxLineWidth;
+        this.fontSize = fontSize;
         this.spaceWidth = spaceWidth;
     }
 
@@ -28,7 +31,7 @@ public class Line {
         int currentWidth = 0;
         for (Word word : words) {
             currentWidth += word.getCurrentWidth();
-            currentWidth += spaceWidth;
+            currentWidth += spaceWidth * fontSize;
         }
         return currentWidth;
     }

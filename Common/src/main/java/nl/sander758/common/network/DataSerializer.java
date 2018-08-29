@@ -67,7 +67,7 @@ public class DataSerializer {
 
         writeInt(bytes.length);
         try {
-            System.out.println(Arrays.toString(bytes));
+//            System.out.println(Arrays.toString(bytes));
             output.write(bytes);
         } catch (IOException e) {
             throw new IllegalStateException(e);

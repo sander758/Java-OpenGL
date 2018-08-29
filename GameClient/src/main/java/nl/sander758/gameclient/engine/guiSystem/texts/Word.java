@@ -12,6 +12,8 @@ public class Word {
 
     private int maxLineWidth;
 
+    private float fontSize;
+
     private int currentWidth = 0;
 
     /**
@@ -19,8 +21,9 @@ public class Word {
      *
      * @param maxLineWidth The max line width in pixels.
      */
-    public Word(int maxLineWidth) {
+    public Word(int maxLineWidth, float fontSize) {
         this.maxLineWidth = maxLineWidth;
+        this.fontSize = fontSize;
     }
 
     /**
@@ -29,12 +32,13 @@ public class Word {
      * @param maxLineWidth The max line width in pixels.
      * @param characters The characters that are in this word.
      */
-    public Word(int maxLineWidth, List<FontCharacter> characters) {
+    public Word(int maxLineWidth, float fontSize, List<FontCharacter> characters) {
         this.maxLineWidth = maxLineWidth;
+        this.fontSize = fontSize;
         this.characters = characters;
 
         for (FontCharacter character : characters) {
-            currentWidth += character.getxAdvance();
+            currentWidth += character.getxAdvance() * fontSize;
         }
     }
 
@@ -45,11 +49,11 @@ public class Word {
      * @return whether the character could be added to the word and keep the word within the maxLineWidth.
      */
     public boolean attemptToAddCharacter(FontCharacter character) {
-        if ((currentWidth + character.getxAdvance()) > maxLineWidth) {
+        if ((currentWidth + character.getxAdvance() * fontSize) > maxLineWidth) {
             return false;
         }
         characters.add(character);
-        currentWidth += character.getxAdvance();
+        currentWidth += character.getxAdvance() * fontSize;
         return true;
     }
 
@@ -67,10 +71,10 @@ public class Word {
         List<FontCharacter> charactersWithin = new ArrayList<>();
         int cursor = 0;
         for (FontCharacter character : characters) {
-            if ((cursor + character.getxAdvance()) > width) {
+            if ((cursor + character.getxAdvance() * fontSize) > width) {
                 break;
             }
-            cursor += character.getxAdvance();
+            cursor += character.getxAdvance() * fontSize;
             charactersWithin.add(character);
         }
         return charactersWithin;
@@ -86,7 +90,7 @@ public class Word {
         List<FontCharacter> charactersOutside = new ArrayList<>();
         int cursor = 0;
         for (FontCharacter character : characters) {
-            cursor += character.getxAdvance();
+            cursor += character.getxAdvance() * fontSize;
             if (cursor <= width) {
                 continue;
             }

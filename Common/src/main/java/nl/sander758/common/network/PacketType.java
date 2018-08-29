@@ -8,7 +8,9 @@ public enum PacketType {
     PLAYERS_LOCATION_PACKET(5),
     REMOVE_PLAYER(6),
     PING_PACKET(7),
-    PONG_PACKET(8);
+    PONG_PACKET(8),
+    CLIENT_CHAT_PACKET(9),
+    SERVER_CHAT_PACKET(10);
 
     private final int id;
 

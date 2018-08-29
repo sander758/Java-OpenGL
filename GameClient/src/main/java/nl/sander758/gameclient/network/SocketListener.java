@@ -5,9 +5,11 @@ import nl.sander758.common.network.*;
 import nl.sander758.common.network.packetsIn.DisconnectPacketIn;
 import nl.sander758.common.network.packetsIn.PongPacketIn;
 import nl.sander758.common.network.packetsOut.DisconnectPacketOut;
+import nl.sander758.gameclient.engine.guiSystem.chat.ChatManager;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.player.PlayerHandler;
 import nl.sander758.gameclient.network.packetsIn.AcceptRegisterPacketIn;
+import nl.sander758.gameclient.network.packetsIn.ChatMessagePacketIn;
 import nl.sander758.gameclient.network.packetsIn.PlayersLocationPacketIn;
 import nl.sander758.gameclient.network.packetsIn.RemovePlayerPacketIn;
 
@@ -78,6 +80,12 @@ class SocketListener extends SocketRunnable {
                         PongPacketIn pongPacket = new PongPacketIn();
                         pongPacket.deserialize(deserializer);
                         PingManager.getManager().callback(pongPacket.getData());
+                        break;
+
+                    case SERVER_CHAT_PACKET:
+                        ChatMessagePacketIn chatPacket = new ChatMessagePacketIn();
+                        chatPacket.deserialize(deserializer);
+                        ChatManager.getManager().onServerMessage(chatPacket);
                         break;
                 }
             }

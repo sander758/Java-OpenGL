@@ -69,4 +69,8 @@ public class GuiText {
     public List<Line> getLines() {
         return lines;
     }
+
+    public float getHeight() {
+        return lines.size() * fontStyle.getLineHeight() * fontSize;
+    }
 }

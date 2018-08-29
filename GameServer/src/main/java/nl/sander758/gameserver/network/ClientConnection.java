@@ -6,6 +6,8 @@ import nl.sander758.common.network.packetsIn.DisconnectPacketIn;
 import nl.sander758.common.network.packetsIn.PingPacketIn;
 import nl.sander758.common.network.packetsOut.DisconnectPacketOut;
 import nl.sander758.common.network.packetsOut.PongPacketOut;
+import nl.sander758.gameserver.chat.ServerChatManager;
+import nl.sander758.gameserver.network.packetsIn.ClientChatMessagePacketIn;
 import nl.sander758.gameserver.network.packetsIn.ClientRegisterPacketIn;
 import nl.sander758.gameserver.network.packetsOut.AcceptRegisterPacketOut;
 import nl.sander758.gameserver.player.Player;
@@ -77,6 +79,12 @@ public class ClientConnection extends SocketRunnable {
                         pingPacket.deserialize(deserializer);
                         Logger.debug("Ping packet received from client: " + clientId + " data: " + pingPacket.getData());
                         trySend(new PongPacketOut(pingPacket.getData()));
+                        break;
+
+                    case CLIENT_CHAT_PACKET:
+                        ClientChatMessagePacketIn clientChatPacket = new ClientChatMessagePacketIn();
+                        clientChatPacket.deserialize(deserializer);
+                        ServerChatManager.getManager().onClientMessage(clientId, clientChatPacket.getMessage());
                         break;
                 }
             }
