@@ -3,6 +3,7 @@ package nl.sander758.gameclient.engine.player;
 import nl.sander758.gameclient.engine.entitySystem.entities.Collidable;
 import nl.sander758.gameclient.engine.entitySystem.entities.Controllable;
 import nl.sander758.gameclient.engine.entitySystem.entities.Player;
+import nl.sander758.gameclient.engine.guiSystem.chat.ChatManager;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.loader.ModelNotFoundException;
 import nl.sander758.gameclient.engine.utils.Timer;
@@ -83,7 +84,7 @@ public class PlayablePlayer extends Player implements Collidable, Controllable {
     @Override
     public void keyboardInputCallback(int key, int keyAction) {
         int action = KEY_UP;
-        if (keyAction != GLFW_RELEASE) {
+        if (keyAction != GLFW_RELEASE && !ChatManager.getManager().hasChatOpen()) {
             action = KEY_DOWN;
         }
 

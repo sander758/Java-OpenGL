@@ -179,6 +179,9 @@ public class Engine {
     }
 
     private void doMainRender(Vector4f clipPlane) {
+        ChatManager chatManager = ChatManager.getManager();
+        chatManager.handleUnprocessedMessages();
+
         prepareRender();
 
 //        shadowMapMasterRenderer.render(entities, light.getLightDirection());

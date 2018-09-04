@@ -1,11 +1,19 @@
 package nl.sander758.gameclient.engine.guiSystem.chat;
 
+import nl.sander758.gameclient.engine.display.WindowManager;
+import nl.sander758.gameclient.engine.guiSystem.texts.FontStyle;
+import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
+import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
+import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
 import nl.sander758.gameclient.network.SocketClient;
 import nl.sander758.gameclient.network.packetsIn.ChatMessagePacketIn;
 import nl.sander758.gameclient.network.packetsOut.ClientChatMessagePacketOut;
 import org.joml.Vector2f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -20,6 +28,12 @@ public class ChatManager implements KeyboardInputListener  {
     private boolean hasChatOpen = false;
 
     private String currentChatMessage = "";
+
+    private FontStyle fontStyle;
+
+    private List<ChatMessage> unprocessedMessages = new ArrayList<>();
+
+    private List<GuiText> messages = new ArrayList<>();
 
     private static ChatManager manager;
 
@@ -43,12 +57,45 @@ public class ChatManager implements KeyboardInputListener  {
         this.width = width;
         this.height = height;
 
+        TextFactory textFactory = TextFactory.getTextFactory();
+        fontStyle = textFactory.getFontStyle("verdana");
+
         System.out.println("Chatmanager initialized");
         InputManager.registerKeyboardInputListener(this);
     }
 
-    public void onServerMessage(ChatMessagePacketIn chatPacket) {
-        System.out.println("Received server message: " + chatPacket.getMessage() + " from: " + chatPacket.getSender());
+    public void onServerMessage(ChatMessage chatMessage) {
+        System.out.println("Received server message: " + chatMessage.getMessage() + " from: " + chatMessage.getSender());
+        unprocessedMessages.add(chatMessage);
+    }
+
+    /**
+     * Gets called every render loop to create new chat messages, because VAO and VBO's need to be created on the OpenGL thread.
+     */
+    public void handleUnprocessedMessages() {
+        if (unprocessedMessages.size() > 0) {
+            for (ChatMessage message : unprocessedMessages) {
+                float messagesHeight = getSummedLineHeight();
+                System.out.println(messagesHeight);
+                GuiText text = new GuiText(message.getMessage(), fontStyle, 0.35f, width, new Vector2f(location.x, location.y - messagesHeight));
+                messages.add(text);
+                TextRegistry.addText(text);
+            }
+            unprocessedMessages.clear();
+        }
+    }
+
+    public boolean hasChatOpen() {
+        return hasChatOpen;
+    }
+
+    private float getSummedLineHeight() {
+        float height = 0f;
+        for (GuiText guiText : messages) {
+            height += guiText.getHeight();
+            System.out.println(guiText.getHeight());
+        }
+        return height / (float) WindowManager.getHeight();
     }
 
     @Override
