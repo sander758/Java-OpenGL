@@ -28,6 +28,7 @@ public class SocketClient {
 
     private SocketClient() {
         this.address = "127.0.0.1";
+//        this.address = "92.222.64.38";
         this.port = 9000;
     }
 

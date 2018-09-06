@@ -1,5 +1,6 @@
 package nl.sander758.gameclient.engine.guiSystem.chat;
 
+import com.google.common.collect.Lists;
 import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.guiSystem.texts.FontStyle;
 import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
@@ -7,11 +8,12 @@ import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
 import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
+import nl.sander758.gameclient.engine.utils.Timer;
 import nl.sander758.gameclient.network.SocketClient;
-import nl.sander758.gameclient.network.packetsIn.ChatMessagePacketIn;
 import nl.sander758.gameclient.network.packetsOut.ClientChatMessagePacketOut;
 import org.joml.Vector2f;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,16 +74,36 @@ public class ChatManager implements KeyboardInputListener  {
     /**
      * Gets called every render loop to create new chat messages, because VAO and VBO's need to be created on the OpenGL thread.
      */
-    public void handleUnprocessedMessages() {
+    public void handleMessages() {
+//        if (messages.size() > 0) {
+//            messages.remove(0);
+//        }
+//
+//        if ()
+//        float deltaTime = Timer.getDeltaTime();
+//        double deltaDecimals = deltaTime - Math.floor(deltaTime);
+//        if (deltaDecimals > 500) {
+//            messages
+//        }
+
         if (unprocessedMessages.size() > 0) {
+            float fontSize = 0.25f;
             for (ChatMessage message : unprocessedMessages) {
-                float messagesHeight = getSummedLineHeight();
-                System.out.println(messagesHeight);
-                GuiText text = new GuiText(message.getMessage(), fontStyle, 0.35f, width, new Vector2f(location.x, location.y - messagesHeight));
+                GuiText text = new GuiText(message.getSender() + ": " + message.getMessage(), fontStyle, fontSize, width, new Vector2f(0, 0));
                 messages.add(text);
-                TextRegistry.addText(text);
             }
             unprocessedMessages.clear();
+
+
+            float windowHeight = (float) WindowManager.getHeight() / 2;
+            float offset = (fontStyle.getLineHeight()) * fontSize / windowHeight;
+
+            int index = 0;
+            for (GuiText text : Lists.reverse(messages)) {
+                float messagesHeight = getSummedLineHeight(messages.subList(0, index));
+                text.setPosition(new Vector2f(location.x, location.y - (height * 2) + offset + messagesHeight));
+                index++;
+            }
         }
     }
 
@@ -89,13 +111,21 @@ public class ChatManager implements KeyboardInputListener  {
         return hasChatOpen;
     }
 
-    private float getSummedLineHeight() {
+    public List<GuiText> getMessages() {
+        return messages;
+    }
+
+    public FontStyle getFontStyle() {
+        return fontStyle;
+    }
+
+    private float getSummedLineHeight(List<GuiText> messages) {
         float height = 0f;
         for (GuiText guiText : messages) {
             height += guiText.getHeight();
             System.out.println(guiText.getHeight());
         }
-        return height / (float) WindowManager.getHeight();
+        return height / (float) WindowManager.getHeight() * 2;
     }
 
     @Override
@@ -112,7 +142,7 @@ public class ChatManager implements KeyboardInputListener  {
             } else {
                 hasChatOpen = true;
             }
-        } else if (action == GLFW_PRESS && key >= 32 && key <= 96) {
+        } else if (action == GLFW_PRESS && hasChatOpen && key >= 32 && key <= 96) {
             currentChatMessage += (char) key;
         }
     }

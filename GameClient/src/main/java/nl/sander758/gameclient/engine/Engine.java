@@ -180,7 +180,7 @@ public class Engine {
 
     private void doMainRender(Vector4f clipPlane) {
         ChatManager chatManager = ChatManager.getManager();
-        chatManager.handleUnprocessedMessages();
+        chatManager.handleMessages();
 
         prepareRender();
 
