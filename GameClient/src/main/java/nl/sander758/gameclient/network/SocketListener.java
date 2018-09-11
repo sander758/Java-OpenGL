@@ -92,6 +92,7 @@ class SocketListener extends SocketRunnable {
             }
         } catch (IOException e) {
             Logger.error(e);
+            Logger.error("Socket listener stopped working...");
         }
     }
 }

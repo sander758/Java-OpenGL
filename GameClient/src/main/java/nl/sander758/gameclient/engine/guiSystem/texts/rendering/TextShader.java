@@ -3,6 +3,7 @@ package nl.sander758.gameclient.engine.guiSystem.texts.rendering;
 import nl.sander758.gameclient.engine.shaders.ShaderProgram;
 import nl.sander758.gameclient.engine.shaders.UniformMatrix;
 import nl.sander758.gameclient.engine.shaders.UniformSampler;
+import nl.sander758.gameclient.engine.shaders.UniformVec3;
 
 public class TextShader extends ShaderProgram {
 
@@ -10,12 +11,13 @@ public class TextShader extends ShaderProgram {
     private static final String FRAGMENT_FILE = "shaders/guiSystem/texts/fragmentShader.glsl";
 
     public UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
+    public UniformVec3 color = new UniformVec3("color");
     public UniformSampler fontAtlas = new UniformSampler("fontAtlas");
 
     public TextShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
 
-        initializeUniformLocations(transformationMatrix, fontAtlas);
+        initializeUniformLocations(transformationMatrix, color, fontAtlas);
     }
 
     @Override

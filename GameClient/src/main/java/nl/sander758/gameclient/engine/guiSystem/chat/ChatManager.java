@@ -5,15 +5,13 @@ import nl.sander758.gameclient.engine.display.WindowManager;
 import nl.sander758.gameclient.engine.guiSystem.texts.FontStyle;
 import nl.sander758.gameclient.engine.guiSystem.texts.GuiText;
 import nl.sander758.gameclient.engine.guiSystem.texts.TextFactory;
-import nl.sander758.gameclient.engine.guiSystem.texts.TextRegistry;
 import nl.sander758.gameclient.engine.input.InputManager;
 import nl.sander758.gameclient.engine.input.KeyboardInputListener;
-import nl.sander758.gameclient.engine.utils.Timer;
 import nl.sander758.gameclient.network.SocketClient;
 import nl.sander758.gameclient.network.packetsOut.ClientChatMessagePacketOut;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +25,8 @@ public class ChatManager implements KeyboardInputListener  {
 
     private float height;
 
+    private float fontSize = 0.25f;
+
     private boolean hasChatOpen = false;
 
     private String currentChatMessage = "";
@@ -36,6 +36,8 @@ public class ChatManager implements KeyboardInputListener  {
     private List<ChatMessage> unprocessedMessages = new ArrayList<>();
 
     private List<GuiText> messages = new ArrayList<>();
+
+    private GuiText unsentMessage;
 
     private static ChatManager manager;
 
@@ -64,6 +66,8 @@ public class ChatManager implements KeyboardInputListener  {
 
         System.out.println("Chatmanager initialized");
         InputManager.registerKeyboardInputListener(this);
+
+        unsentMessage = new GuiText("", fontStyle, fontSize, width, new Vector2f(location.x, 0), new Vector3f(0, 255, 0));
     }
 
     public void onServerMessage(ChatMessage chatMessage) {
@@ -75,21 +79,9 @@ public class ChatManager implements KeyboardInputListener  {
      * Gets called every render loop to create new chat messages, because VAO and VBO's need to be created on the OpenGL thread.
      */
     public void handleMessages() {
-//        if (messages.size() > 0) {
-//            messages.remove(0);
-//        }
-//
-//        if ()
-//        float deltaTime = Timer.getDeltaTime();
-//        double deltaDecimals = deltaTime - Math.floor(deltaTime);
-//        if (deltaDecimals > 500) {
-//            messages
-//        }
-
         if (unprocessedMessages.size() > 0) {
-            float fontSize = 0.25f;
             for (ChatMessage message : unprocessedMessages) {
-                GuiText text = new GuiText(message.getSender() + ": " + message.getMessage(), fontStyle, fontSize, width, new Vector2f(0, 0));
+                GuiText text = new GuiText(message.getSender() + ": " + message.getMessage(), fontStyle, fontSize, width, new Vector2f(0, 0), new Vector3f(255, 255, 0));
                 messages.add(text);
             }
             unprocessedMessages.clear();
@@ -115,12 +107,17 @@ public class ChatManager implements KeyboardInputListener  {
         return messages;
     }
 
+    public GuiText getUnsentMessage() {
+        return unsentMessage;
+    }
+
     public FontStyle getFontStyle() {
         return fontStyle;
     }
 
     private float getSummedLineHeight(List<GuiText> messages) {
         float height = 0f;
+        height += unsentMessage.getHeight();
         for (GuiText guiText : messages) {
             height += guiText.getHeight();
             System.out.println(guiText.getHeight());
@@ -139,11 +136,18 @@ public class ChatManager implements KeyboardInputListener  {
                 System.out.println("after sending chat message");
                 hasChatOpen = false;
                 currentChatMessage = "";
+                unsentMessage.setText(currentChatMessage);
             } else {
                 hasChatOpen = true;
             }
         } else if (action == GLFW_PRESS && hasChatOpen && key >= 32 && key <= 96) {
             currentChatMessage += (char) key;
+            unsentMessage.setText(currentChatMessage);
+
+            float windowHeight = (float) WindowManager.getHeight() / 2;
+//            float offset = (fontStyle.getLineHeight()) * fontSize / windowHeight;
+            float messagesHeight = unsentMessage.getHeight() / windowHeight;
+            unsentMessage.setPosition(new Vector2f(location.x, location.y - (height * 2) + messagesHeight));
         }
     }
 }

@@ -86,7 +86,7 @@ public class Engine {
             FontStyle verdana = textFactory.getFontStyle("verdana");
 //            GuiText text = new GuiText("the quick brown fox jumps over the lazy dog", verdana, 1, 0.5f, new Vector2f(-1f, 1f));
 //            GuiText text2 = new GuiText("the quic k brown fox jumps over the lazy dog", verdana, 2, 0.5f, new Vector2f(-1f, 0));
-            GuiText text3 = new GuiText("the quick brown fox jumps over the lazy dog fsda fdsafdsa fds fdsa fdsa d fdsa fdsa d fdsa", verdana, 0.35f, 0.5f, new Vector2f(0, 1f));
+            GuiText text3 = new GuiText("the quick brown fox jumps over the lazy dog fsda fdsafdsa fds fdsa fdsa d fdsa fdsa d fdsa", verdana, 0.35f, 0.5f, new Vector2f(0, 1f), new Vector3f(255, 0,0));
             System.out.println(text3.getHeight());
 
 //            TextRegistry.addText(text);

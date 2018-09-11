@@ -50,7 +50,7 @@ public class TextFactory {
         int screenWidth = WindowManager.getWidth();
 
         int lineWidth = (int) (text.getLineWidth() * (float) screenWidth);
-        System.out.println(lineWidth);
+//        System.out.println(lineWidth);
 
         FontStyle fontStyle = text.getFontStyle();
         float fontSize = text.getFontSize();
