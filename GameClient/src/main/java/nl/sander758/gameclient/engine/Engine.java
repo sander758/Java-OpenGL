@@ -1,6 +1,7 @@
 package nl.sander758.gameclient.engine;
 
 import nl.sander758.common.logger.Logger;
+import nl.sander758.gameclient.client.entities.staticEntities.Crossbow;
 import nl.sander758.gameclient.client.entities.staticEntities.SimpleTree;
 import nl.sander758.gameclient.client.entities.staticEntities.Velociraptor;
 import nl.sander758.gameclient.client.entities.terrainEntities.RiverlandEntity;
@@ -74,6 +75,9 @@ public class Engine {
 
             StaticEntityRegistry.addEntity(new SimpleTree(new Vector3f(0, -1, -6)));
             StaticEntityRegistry.addEntity(new Velociraptor(new Vector3f(0, 0, 0)));
+            Crossbow crossbow = new Crossbow(new Vector3f(-2, 1, -6));
+            crossbow.setScale(2);
+            StaticEntityRegistry.addEntity(crossbow);
             TerrainEntityRegistry.addEntity(new RiverlandEntity(new Vector3f(0, 0, 0)));
             WaterEntityRegistry.addEntity(new WaterEntity(new Vector2f(0, 0), 16));
             player = PlayerHandler.getPlayablePlayer();
